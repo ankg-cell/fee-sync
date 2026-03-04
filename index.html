@@ -2,136 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FEE SYNC - SECURE CLOUD EDITION</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FEE SYNC - CLIENT PORTAL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@1,400;1,700&display=swap');
         :root { --bg: #f4f7f6; --text: #2d3748; --brand: #2b6cb0; --warn: #e53e3e; --premium: #d69e2e; --success: #38a169; }
         body { background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); padding: 15px; margin: 0; }
-        .focus-zone { max-width: 1200px; margin: 0 auto; padding-bottom: 100px; }
+        .focus-zone { max-width: 600px; margin: 0 auto; padding-bottom: 100px; }
         
-        .brand-title { font-family: 'Kanit', sans-serif; font-size: 2.8rem; margin: 0; text-align: center; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .brand-title { font-family: 'Kanit', sans-serif; font-size: 1.8rem; margin: 0; }
         .brand-fee { color: var(--brand); font-style: italic; font-weight: 400; }
         .brand-sync { color: var(--warn); font-style: italic; font-weight: 700; }
+        #biz-header-name { font-size: 0.8rem; color: #718096; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid #cbd5e0; padding-bottom: 5px; }
 
         .card { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .btn { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn { width: 100%; padding: 14px; margin-top: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; }
         .btn-primary { background: var(--brand); color: #fff; }
         .btn-success { background: var(--success); color: #fff; }
-        .btn-help { background: var(--premium); color: #000; position: fixed; bottom: 20px; right: 20px; width: auto; padding: 15px 30px; border-radius: 50px; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .edit-btn { background: none; border: 1px solid var(--brand); color: var(--brand); width: auto; padding: 4px 10px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; margin-top: 5px;}
-
-        /* LOGIN SCREEN STYLES */
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; }
-        .login-box { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #cbd5e0; box-sizing: border-box; }
         
-        /* APP CONTAINER (HIDDEN BY DEFAULT) */
-        #app-container { display: none; }
+        /* HIDDEN BY DEFAULT - UNLOCKED BY PLAN */
+        #btn-invoice, #btn-assistant, #upgrade-banner { display: none; }
 
-        /* RIBBON */
-        .ribbon { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 20px 0; }
-        .stat-card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid var(--brand); }
-        .stat-label { font-size: 0.65rem; font-weight: 800; color: #718096; text-transform: uppercase; }
-        .stat-value { font-size: 1.4rem; font-weight: 700; font-family: 'Kanit'; }
+        #btn-assistant { background: var(--premium); color: #000; position: fixed; bottom: 20px; right: 20px; width: auto; padding: 15px 25px; border-radius: 50px; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        #upgrade-banner { background: #fff5f5; color: var(--warn); padding: 10px; border-radius: 8px; text-align: center; font-size: 0.75rem; margin-bottom: 15px; border: 1px dashed var(--warn); }
 
-        /* LEDGER */
-        .ledger-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #edf2f7; align-items: center; font-size: 0.9rem; }
-        .voided { background: #fff5f5; color: #a0aec0 !important; text-decoration: line-through; border-left: 4px solid var(--warn); }
-        .adj-row { background: #f0fff4; border-left: 4px solid var(--success); }
-
-        /* MODALS & ASSISTANT */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: #fff; width: 95%; max-width: 800px; max-height: 90vh; border-radius: 20px; padding: 25px; overflow-y: auto; position: relative; }
-        #assistant { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: #fff; z-index: 3000; transition: 0.3s; padding: 25px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); overflow-y: auto; }
-        #assistant.open { right: 0; }
-        .trash-bin { background: #fff5f5; border: 1px solid #feb2b2; padding: 15px; border-radius: 10px; margin: 15px 0; }
-        .trash-item { border-bottom: 1px dashed #fed7d7; padding: 8px 0; font-size: 0.85rem; color: #c53030; display: flex; justify-content: space-between; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { text-align: left; padding: 10px; background: #f8fafc; font-size: 0.7rem; text-transform: uppercase; }
-        td { padding: 10px; border-bottom: 1px solid #edf2f7; font-size: 0.9rem; }
+        .ledger-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #edf2f7; align-items: center; }
         
-        #cloud-status { text-align: center; font-size: 0.8rem; color: #718096; margin-top: -10px; margin-bottom: 15px; }
-        .online { color: var(--success) !important; font-weight: bold; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        /* LOGIN OVERLAY */
+        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 85%; max-width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #cbd5e0; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<div id="login-screen">
+<div id="login-overlay">
     <div class="login-box">
-        <h1 class="brand-title" style="margin-bottom:20px;"><span class="brand-fee">FEE</span> <span class="brand-sync">SYNC</span></h1>
-        <p style="color:#718096; font-size:0.9rem;">Secure access required</p>
-        <input type="email" id="auth-email" class="login-input" placeholder="Email address">
-        <input type="password" id="auth-pass" class="login-input" placeholder="Password">
-        <button class="btn btn-primary" onclick="window.loginApp()" style="margin-top:20px;">Unlock Database</button>
-        <p id="login-error" style="color:var(--warn); font-size:0.8rem; margin-top:10px; display:none;"></p>
+        <h1 class="brand-title"><span class="brand-fee">FEE</span> <span class="brand-sync">SYNC</span></h1>
+        <p style="color:#718096; font-size:0.8rem; margin-bottom: 20px;">Business Portal Login</p>
+        <input type="email" id="auth-email" placeholder="Email">
+        <input type="password" id="auth-pass" placeholder="Password">
+        <button class="btn btn-primary" onclick="window.loginApp()">Login</button>
+        <p id="login-error" style="color:var(--warn); font-size:0.8rem; display:none;"></p>
     </div>
 </div>
 
-<div id="app-container" class="focus-zone">
+<div class="focus-zone">
     <div class="header-top">
-        <h1 class="brand-title" style="text-align:left; font-size:2rem;"><span class="brand-fee">FEE</span> <span class="brand-sync">SYNC</span></h1>
-        <button onclick="window.logoutApp()" style="background:none; border:1px solid #cbd5e0; padding:6px 12px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#718096;">Secure Logout</button>
+        <h1 class="brand-title"><span class="brand-fee">FEE</span> <span class="brand-sync">SYNC</span></h1>
+        <button onclick="window.logoutApp()" style="background:none; border:none; color:#718096; font-size:0.7rem;">LOGOUT</button>
     </div>
-    <div id="cloud-status">Authenticating...</div>
-
-    <div class="ribbon">
-        <div class="stat-card"> <span class="stat-label">Work Done</span> <div class="stat-value" id="val-work">₹0</div> </div>
-        <div class="stat-card" style="border-left-color: var(--premium)"> <span class="stat-label">Invoiced</span> <div class="stat-value" id="val-invoiced">₹0</div> </div>
-        <div class="stat-card" style="border-left-color: var(--warn)"> <span class="stat-label">Pending</span> <div class="stat-value" id="val-pending">₹0</div> </div>
-        <div class="stat-card" style="border-left-color: var(--success)"> <span class="stat-label">Received</span> <div class="stat-value" id="val-received">₹0</div> </div>
-    </div>
+    <div id="biz-header-name">IDENTIFYING TENANT...</div>
+    <div id="upgrade-banner">⭐ You are on the Basic Plan. Upgrade to unlock Invoicing and AI!</div>
 
     <div class="card">
-        <h3>Quick Entry</h3>
-        <select id="main-std" style="width:100%; padding:12px; border-radius:8px; border:1px solid #cbd5e0;">
-            <option value="Rahul S.">Rahul S. (₹500)</option>
-            <option value="Amit K.">Amit K. (₹450)</option>
-            <option value="Priya M.">Priya M. (₹600)</option>
+        <h3 id="ui-label-entry">Quick Entry</h3>
+        <select id="main-person" style="width:100%; padding:12px; border-radius:8px; border:1px solid #cbd5e0;">
+            <option value="General Client">General Account</option>
         </select>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <button class="btn btn-primary" onclick="window.addLog()">Log Class</button>
-            <button class="btn" style="background:var(--premium); color:black;" onclick="window.generateInvoice()">Bill Student</button>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <input type="number" id="pay-amt" placeholder="Payment (₹)" style="flex:1; padding:12px; border-radius:8px; border:1px solid #cbd5e0;">
-            <button class="btn btn-success" onclick="window.addPayment()">Record Payment</button>
+        <button class="btn btn-primary" id="btn-log" onclick="window.addEvent('Session')">Log Session</button>
+        <button class="btn" id="btn-invoice" style="background:var(--premium); color:black;" onclick="alert('Invoicing initialized...')">Generate Bill</button>
+        
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <input type="number" id="pay-amt" placeholder="Payment (₹)" style="flex:1;">
+            <button class="btn btn-success" style="margin-top:0;" onclick="window.addEvent('Payment')">Pay</button>
         </div>
     </div>
 
     <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>Cloud Ledger</h3>
-            <button class="btn" style="width:auto; padding:8px 15px; background:#edf2f7;" onclick="window.toggleModal()">📊 Reports</button>
-        </div>
-        <div id="ledger-box"></div>
+        <h3>Cloud Ledger</h3>
+        <div id="ledger-box">Syncing with vault...</div>
     </div>
 </div>
 
-<button id="btn-assistant" class="btn btn-help" onclick="window.toggleWiz()" style="display:none;">✨ Ask Assistant</button>
-
-<div id="assistant">
-    <h2 style="font-family:Kanit; color:var(--brand);">Assistant</h2><hr>
-    <div id="wiz-content"></div>
-</div>
-
-<div id="reportModal" class="modal-overlay" onclick="window.closeModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 style="font-family:Kanit; color:var(--brand); margin:0;">Student Standings</h2>
-        <div style="overflow-x:auto;">
-            <table>
-                <thead> <tr> <th>Student</th> <th>Billed</th> <th>Paid</th> <th>Pending</th> <th>Wallet</th> </tr> </thead>
-                <tbody id="report-table-body"></tbody>
-            </table>
-        </div>
-        <button class="btn btn-primary" onclick="window.toggleModal()" style="margin-top:20px; background:#f4f7f6; color:#000;">Close Report</button>
-    </div>
-</div>
+<button id="btn-assistant">✨ AI Assistant</button>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, writeBatch, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -146,221 +95,73 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    const eventsRef = collection(db, "events");
 
-    let events = [];
-    let dbUnsubscribe = null;
-    const rates = {"Rahul S.": 500, "Amit K.": 450, "Priya M.": 600};
-    const studentList = Object.keys(rates);
+    let currentUid = null;
+    let bizData = null;
 
-    // AUTHENTICATION LOGIC
-    window.loginApp = function() {
-        const email = document.getElementById('auth-email').value;
-        const pass = document.getElementById('auth-pass').value;
-        const errBox = document.getElementById('login-error');
-        errBox.style.display = 'none';
-        
-        signInWithEmailAndPassword(auth, email, pass).catch(error => {
-            errBox.innerText = "Access denied. Check credentials.";
-            errBox.style.display = 'block';
-        });
+    window.loginApp = () => {
+        signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-pass').value)
+        .catch(e => { document.getElementById('login-error').innerText = "Login Failed"; document.getElementById('login-error').style.display='block'; });
     };
+    window.logoutApp = () => { signOut(auth); location.reload(); };
 
-    window.logoutApp = function() {
-        signOut(auth);
-    };
-
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
-            // Unlocked
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-container').style.display = 'block';
-            document.getElementById('btn-assistant').style.display = 'block';
-            startDatabaseListener();
-        } else {
-            // Locked
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('app-container').style.display = 'none';
-            document.getElementById('btn-assistant').style.display = 'none';
-            if (dbUnsubscribe) dbUnsubscribe();
-            events = [];
-            updateDashboard();
+            currentUid = user.uid;
+            document.getElementById('login-overlay').style.display = 'none';
+            await syncSaaSProfile();
         }
     });
 
-    // DATABASE LOGIC
-    function startDatabaseListener() {
-        const q = query(eventsRef, orderBy("ts_value", "asc"));
-        dbUnsubscribe = onSnapshot(q, (snapshot) => {
-            events = [];
-            snapshot.forEach((doc) => { events.push({ dbId: doc.id, ...doc.data() }); });
+    async function syncSaaSProfile() {
+        const docSnap = await getDoc(doc(db, "businesses", currentUid));
+        if (docSnap.exists()) {
+            bizData = docSnap.data();
+            document.getElementById('biz-header-name').innerText = bizData.businessName + " | " + bizData.subscriptionPlan;
             
-            document.getElementById('cloud-status').innerHTML = "🟢 Encrypted Connection Live";
-            document.getElementById('cloud-status').classList.add('online');
+            // Terminology Logic
+            let term = "Student";
+            if(bizData.industryType === 'Sports') term = "Athlete";
+            if(bizData.industryType === 'Gym') term = "Member";
+            if(bizData.industryType === 'Consultant') term = "Client";
             
-            updateDashboard();
-            if(document.getElementById('reportModal').style.display === 'flex') renderTable();
-        }, (error) => {
-            console.error("Database access blocked:", error);
-            document.getElementById('cloud-status').innerHTML = "🔴 Connection Blocked";
-            document.getElementById('cloud-status').classList.remove('online');
-        });
-    }
+            document.getElementById('ui-label-entry').innerText = `Log ${term} Activity`;
+            document.getElementById('btn-log').innerText = `Record ${term} Session`;
 
-    window.addLog = async function() {
-        const name = document.getElementById('main-std').value;
-        const date = new Date().toLocaleDateString();
-        if(events.some(e => e.student === name && e.date === date && e.type === 'Class' && e.status !== 'voided')) {
-            if(!confirm("Duplicate session for today. Proceed?")) return;
-        }
-        await addDoc(eventsRef, { type: 'Class', student: name, amt: rates[name], date: date, status: 'unbilled', invId: null, ts: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts_value: Date.now() });
-    }
+            // Plan Fence Logic
+            if(bizData.subscriptionPlan === 'Basic') document.getElementById('upgrade-banner').style.display = 'block';
+            if(bizData.subscriptionPlan !== 'Basic') document.getElementById('btn-invoice').style.display = 'block';
+            if(bizData.subscriptionPlan === 'Pro') document.getElementById('btn-assistant').style.display = 'block';
 
-    window.editLog = async function(dbId) {
-        const ev = events.find(e => e.dbId === dbId);
-        if(!ev || ev.status !== 'unbilled') return;
-        const newAmt = prompt("Edit amount for " + ev.student + ":", ev.amt);
-        if(newAmt && !isNaN(newAmt)) { 
-            await updateDoc(doc(db, "events", dbId), { amt: parseInt(newAmt) }); 
-        }
-    }
-
-    window.generateInvoice = async function() {
-        const name = document.getElementById('main-std').value;
-        const toBill = events.filter(e => e.student === name && e.type === 'Class' && !e.invId && e.status !== 'voided');
-        if(!toBill.length) return alert("Nothing unbilled for " + name);
-        
-        const workAmt = toBill.reduce((s, e) => s + e.amt, 0);
-        const wallet = getWalletFor(name);
-        const invId = "INV-" + Date.now();
-        const batch = writeBatch(db);
-
-        toBill.forEach(e => {
-            batch.update(doc(db, "events", e.dbId), { invId: invId, status: 'locked' });
-        });
-
-        if(wallet > 0) {
-            const credit = Math.min(workAmt, wallet);
-            batch.set(doc(eventsRef), { type: 'Credit Applied', student: name, amt: credit, status: 'active', isAdj: true, ts: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts_value: Date.now() });
-            batch.set(doc(eventsRef), { type: 'Invoice', student: name, amt: (workAmt - credit), status: 'active', invId: invId, ts: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts_value: Date.now() + 1 });
+            loadLedger();
         } else {
-            batch.set(doc(eventsRef), { type: 'Invoice', student: name, amt: workAmt, status: 'active', invId: invId, ts: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts_value: Date.now() });
+            alert("No business profile found. Please contact Fee Sync HQ.");
         }
-        await batch.commit();
     }
 
-    window.addPayment = async function() {
-        const name = document.getElementById('main-std').value;
-        const amt = parseInt(document.getElementById('pay-amt').value);
+    window.addEvent = async (type) => {
+        const amt = type === 'Payment' ? document.getElementById('pay-amt').value : 500;
         if(!amt) return;
-        await addDoc(eventsRef, { type: 'Payment', student: name, amt: amt, status: 'active', ts: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts_value: Date.now() });
+        await addDoc(collection(db, "businesses", currentUid, "events"), {
+            type, amt: Number(amt), person: document.getElementById('main-person').value,
+            ts: Date.now(), date_str: new Date().toLocaleDateString()
+        });
         document.getElementById('pay-amt').value = '';
-    }
+    };
 
-    function getWalletFor(student) {
-        const sEvents = events.filter(e => e.student === student && e.status !== 'voided');
-        const paid = sEvents.filter(e => e.type === 'Payment').reduce((s, e) => s + e.amt, 0);
-        const applied = sEvents.filter(e => e.type === 'Credit Applied').reduce((s, e) => s + e.amt, 0);
-        const invoiced = sEvents.filter(e => e.type === 'Invoice').reduce((s, e) => s + e.amt, 0);
-        return Math.max(0, paid - applied - invoiced);
-    }
-
-    function updateDashboard() {
-        const box = document.getElementById('ledger-box');
-        let t = { work: 0, invoiced: 0, paid: 0, applied: 0 };
-        box.innerHTML = events.slice().reverse().map(e => {
-            if(e.status !== 'voided') {
-                if(e.type === 'Class') t.work += e.amt;
-                if(e.type === 'Invoice') t.invoiced += e.amt;
-                if(e.type === 'Payment') t.paid += e.amt;
-                if(e.type === 'Credit Applied') t.applied += e.amt;
-            }
-            return `<div class="ledger-row ${e.status === 'voided' ? 'voided' : ''} ${e.isAdj ? 'adj-row' : ''}">
-                <div>
-                  <b>${e.type}</b>: ${e.student} <br><small>${e.ts}</small>
-                  ${e.type === 'Class' && e.status === 'unbilled' ? `<br><button class="edit-btn" onclick="window.editLog('${e.dbId}')">Edit Amount</button>` : ''}
-                </div>
-                <div style="font-weight:bold">${e.isAdj ? '-' : ''}₹${e.amt}</div>
-            </div>`;
-        }).join('');
-        document.getElementById('val-work').innerText = "₹" + t.work;
-        document.getElementById('val-invoiced').innerText = "₹" + t.invoiced;
-        document.getElementById('val-received').innerText = "₹" + t.paid;
-        document.getElementById('val-pending').innerText = "₹" + Math.max(0, t.invoiced - (t.paid - t.applied));
-    }
-
-    window.toggleWiz = function() { document.getElementById('assistant').classList.toggle('open'); window.wizStep('start'); }
-    window.wizStep = function(step, dbId) {
-        const div = document.getElementById('wiz-content');
-        if(step === 'start') {
-            div.innerHTML = `<button class="btn" onclick="window.wizStep('rollback')">Undo recent mistake</button>
-                             <button class="btn" onclick="window.wizStep('void_select')">Cancel specific bill</button>`;
-        } else if(step === 'rollback') {
-            let items = events.filter(e => e.status !== 'voided').map(e => `
-                <button class="btn" onclick="window.wizStep('preview_rollback', '${e.dbId}')">${e.ts} | ${e.type} (${e.student})</button>
-            `).reverse().join('');
-            div.innerHTML = `<p>Go back in time to:</p>` + items;
-        } else if(step === 'preview_rollback') {
-            const targetEv = events.find(e => e.dbId === dbId);
-            const lost = events.filter(e => e.ts_value > targetEv.ts_value);
-            let list = lost.map(l => `<div class="trash-item"><span>${l.type} (${l.student})</span><span>₹${l.amt}</span></div>`).join('');
-            div.innerHTML = `<p>Deleting everything after this point:</p><div class="trash-bin">${list}</div>
-                             <button class="btn btn-primary" style="background:var(--warn)" onclick="window.doRollback('${dbId}')">Confirm & Delete</button>
-                             <button class="btn" onclick="window.wizStep('rollback')" style="background:#edf2f7; color:#000;">Back</button>`;
-        } else if(step === 'void_select') {
-            let invs = events.filter(e => e.type === 'Invoice' && e.status !== 'voided');
-            div.innerHTML = invs.map(i => `<button class="btn" onclick="window.doVoid('${i.dbId}')">Void ${i.student} (₹${i.amt})</button>`).join('') || "No active invoices.";
-        }
-    }
-
-    window.doRollback = async function(dbId) { 
-        const targetEv = events.find(e => e.dbId === dbId);
-        const lostEvents = events.filter(e => e.ts_value > targetEv.ts_value);
-        const batch = writeBatch(db);
-        
-        lostEvents.forEach(lost => {
-            batch.delete(doc(db, "events", lost.dbId));
-            if (lost.type === 'Invoice' && lost.invId) {
-                events.forEach(e => {
-                    if (e.type === 'Class' && e.invId === lost.invId && e.ts_value <= targetEv.ts_value) {
-                        batch.update(doc(db, "events", e.dbId), { status: 'unbilled', invId: null });
-                    }
-                });
-            }
+    function loadLedger() {
+        const q = query(collection(db, "businesses", currentUid, "events"), orderBy("ts", "desc"));
+        onSnapshot(q, (snap) => {
+            let h = '';
+            snap.forEach(d => {
+                const e = d.data();
+                h += `<div class="ledger-row">
+                    <span><b>${e.type}</b><br><small>${e.date_str}</small></span>
+                    <span style="color:${e.type==='Payment'?'green':'black'}">₹${e.amt}</span>
+                </div>`;
+            });
+            document.getElementById('ledger-box').innerHTML = h || 'No activity recorded.';
         });
-        await batch.commit();
-        window.toggleWiz(); 
-    }
-
-    window.doVoid = async function(dbId) {
-        const inv = events.find(e => e.dbId === dbId);
-        const batch = writeBatch(db);
-        batch.update(doc(db, "events", dbId), { status: 'voided' });
-        events.forEach(e => { 
-            if(e.invId === inv.invId && e.type === 'Class') { 
-                batch.update(doc(db, "events", e.dbId), { status: 'unbilled', invId: null }); 
-            } 
-        });
-        await batch.commit();
-        window.toggleWiz();
-    }
-
-    window.toggleModal = function() {
-        const m = document.getElementById('reportModal');
-        m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-        if(m.style.display === 'flex') renderTable();
-    }
-    window.closeModal = function(e) { if(e.target.id === 'reportModal') window.toggleModal(); }
-
-    function renderTable() {
-        const tbody = document.getElementById('report-table-body');
-        tbody.innerHTML = studentList.map(s => {
-            const wallet = getWalletFor(s);
-            const inv = events.filter(e => e.student === s && e.type === 'Invoice' && e.status !== 'voided').reduce((sum,e)=>sum+e.amt,0);
-            const paid = events.filter(e => e.student === s && e.type === 'Payment' && e.status !== 'voided').reduce((sum,e)=>sum+e.amt,0);
-            const applied = events.filter(e => e.student === s && e.type === 'Credit Applied' && e.status !== 'voided').reduce((sum,e)=>sum+e.amt,0);
-            return `<tr><td>${s}</td><td>₹${inv}</td><td>₹${paid}</td><td style="color:var(--warn)">₹${Math.max(0, inv-(paid-applied))}</td><td style="color:var(--success)">₹${wallet}</td></tr>`;
-        }).join('');
     }
 </script>
 </body>
