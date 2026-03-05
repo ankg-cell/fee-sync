@@ -2,110 +2,176 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FEE SYNC - PORTAL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Sync | Zero Commission Ledger</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@1,400;1,700&display=swap');
-        :root { --bg: #f4f7f6; --text: #2d3748; --brand: #2b6cb0; --warn: #e53e3e; --premium: #d69e2e; --success: #38a169; }
-        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); padding: 15px; margin: 0; }
-        .focus-zone { max-width: 500px; margin: 0 auto; padding-bottom: 80px; }
-        .brand-title { font-family: 'Kanit', sans-serif; font-size: 1.8rem; margin: 0; }
-        .brand-fee { color: var(--brand); font-style: italic; }
-        .brand-sync { color: var(--warn); font-style: italic; font-weight: 700; }
-        .card { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .btn { width: 100%; padding: 14px; margin-top: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-        .btn-primary { background: var(--brand); color: #fff; }
-        #btn-invoice, #btn-assistant, #upgrade-banner, #app-container { display: none; }
-        #btn-assistant { background: var(--premium); position: fixed; bottom: 20px; right: 20px; width: auto; padding: 15px 25px; border-radius: 50px; }
-        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-box { background: #fff; padding: 30px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #cbd5e0; box-sizing: border-box; }
-        .ledger-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        :root { --brand: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .auth-card { background: var(--card); padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        .logo { font-size: 2rem; font-weight: bold; color: var(--brand); margin-bottom: 10px; }
+        .tagline { color: #6b7280; font-size: 0.95rem; margin-bottom: 30px; }
+        
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 0.85rem; font-weight: bold; color: #4b5563; margin-bottom: 5px; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; font-size: 1rem; outline: none; transition: border 0.2s; }
+        .input-group input:focus { border-color: var(--brand); }
+        
+        .legal-check { display: flex; align-items: flex-start; gap: 10px; font-size: 0.8rem; color: #6b7280; text-align: left; margin-bottom: 20px; margin-top: 10px;}
+        .legal-check input { margin-top: 3px; }
+        
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: var(--brand); color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
+        .btn-primary:hover { background: #1d4ed8; }
+        
+        .toggle-text { margin-top: 20px; font-size: 0.9rem; color: #6b7280; }
+        .toggle-text span { color: var(--brand); font-weight: bold; cursor: pointer; }
+        
+        .hidden { display: none; }
+        #error-msg { color: #dc2626; font-size: 0.85rem; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
-<div id="login-overlay">
-    <div class="login-box">
-        <h1 class="brand-title"><span class="brand-fee">FEE</span> <span class="brand-sync">SYNC</span></h1>
-        <input type="email" id="auth-email" placeholder="Email">
-        <input type="password" id="auth-pass" placeholder="Password">
-        <button class="btn btn-primary" onclick="window.loginApp()">Login</button>
-        <p id="login-error" style="color:var(--warn); font-size:0.8rem; display:none;"></p>
+
+    <div class="auth-card">
+        <div class="logo">⚡ Fee Sync</div>
+        <div class="tagline">The Zero-Commission Client Ledger.</div>
+
+        <div id="login-form">
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="login-email" placeholder="you@email.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="login-password" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" onclick="loginUser()">Log In Securely</button>
+            <div class="toggle-text">Don't have an account? <span onclick="toggleForms()">Create one</span></div>
+        </div>
+
+        <div id="signup-form" class="hidden">
+            <div class="input-group">
+                <label>Full Name or Business Name</label>
+                <input type="text" id="signup-name" placeholder="e.g. Aryan Coaching">
+            </div>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="signup-email" placeholder="you@email.com">
+            </div>
+            <div class="input-group">
+                <label>Password (Min 6 characters)</label>
+                <input type="password" id="signup-password" placeholder="••••••••">
+            </div>
+            <div class="input-group">
+                <label>Your Receiving UPI ID (Crucial for Payments)</label>
+                <input type="text" id="signup-upi" placeholder="e.g. yourname@oksbi">
+            </div>
+            
+            <div class="legal-check">
+                <input type="checkbox" id="signup-terms">
+                <label for="signup-terms">I agree to the Terms of Service. I understand Fee Sync is a ledger utility, not a payment gateway, and takes zero commissions on my transactions.</label>
+            </div>
+
+            <button class="btn btn-primary" onclick="registerUser()">Create Free Account</button>
+            <div class="toggle-text">Already have an account? <span onclick="toggleForms()">Log In</span></div>
+        </div>
+
+        <div id="error-msg"></div>
     </div>
-</div>
-<div id="app-container" class="focus-zone">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h1 class="brand-title"><span class="brand-fee">FEE</span> <span class="brand-sync">SYNC</span></h1>
-        <button onclick="window.logoutApp()" style="background:none; border:none; color:#718096; font-size:0.7rem;">LOGOUT</button>
-    </div>
-    <div id="biz-header" style="font-size:0.8rem; font-weight:bold; margin: 10px 0; color:var(--brand);">LOADING...</div>
-    <div id="upgrade-banner" style="background:#fff5f5; color:var(--warn); padding:10px; border-radius:8px; font-size:0.75rem; text-align:center;">Upgrade to unlock Invoicing & AI!</div>
-    <div class="card">
-        <h3 id="ui-label">Activity</h3>
-        <select id="main-person" style="width:100%; padding:12px; border-radius:8px;"><option value="General">Account General</option></select>
-        <button class="btn btn-primary" id="btn-log" onclick="window.addEvent('Session')">Record Session</button>
-        <button class="btn" id="btn-invoice" style="background:var(--premium);" onclick="alert('Generating Invoices...')">Generate Bill</button>
-        <div style="display:flex; gap:10px; margin-top:15px;"><input type="number" id="pay-amt" placeholder="₹ Payment" style="flex:1;"><button class="btn" style="margin:0; background:var(--success); color:white;" onclick="window.addEvent('Payment')">Pay</button></div>
-    </div>
-    <div class="card"><h3>Cloud Ledger</h3><div id="ledger-box">Syncing...</div></div>
-</div>
-<button id="btn-assistant">✨ AI Assistant</button>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, doc, getDoc, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    const firebaseConfig = {
-      apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
-      authDomain: "fee-sync.firebaseapp.com",
-      projectId: "fee-sync",
-      storageBucket: "fee-sync.firebasestorage.app",
-      messagingSenderId: "572245525299",
-      appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    let currentUid = null;
-    window.loginApp = () => signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-pass').value).catch(e=>alert("Login Failed"));
-    window.logoutApp = () => { signOut(auth); location.reload(); };
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            currentUid = user.uid;
-            const docSnap = await getDoc(doc(db, "businesses", currentUid));
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.status === 'Suspended') {
-                    document.body.innerHTML = `<div style="text-align:center; padding:50px; font-family:sans-serif;"><h1>🚫 Suspended</h1><p>Contact support@feesync.com</p></div>`;
-                    return;
-                }
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('app-container').style.display = 'block';
-                document.getElementById('biz-header').innerText = data.businessName.toUpperCase() + " | " + data.subscriptionPlan;
-                let t = "Student";
-                if(data.industryType === 'Sports') t = "Athlete";
-                if(data.industryType === 'Gym') t = "Member";
-                document.getElementById('ui-label').innerText = `Record ${t} Activity`;
-                document.getElementById('btn-log').innerText = `Log ${t} Session`;
-                if(data.subscriptionPlan !== 'Basic') document.getElementById('btn-invoice').style.display = 'block';
-                if(data.subscriptionPlan === 'Pro') document.getElementById('btn-assistant').style.display = 'block';
-                if(data.subscriptionPlan === 'Basic') document.getElementById('upgrade-banner').style.display = 'block';
-                loadLedger();
+
+    <script type="module">
+        // 1. Import Firebase core and Auth/Firestore tools
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // 🚨 REPLACE THIS WITH YOUR EXACT FIREBASE CONFIG 🚨
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "fee-sync.firebaseapp.com",
+            projectId: "fee-sync",
+            storageBucket: "fee-sync.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // 2. Initialize the App
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // UI Toggle Function
+        window.toggleForms = function() {
+            document.getElementById('login-form').classList.toggle('hidden');
+            document.getElementById('signup-form').classList.toggle('hidden');
+            document.getElementById('error-msg').innerText = ''; // Clear errors
+        }
+
+        // --- REGISTRATION LOGIC ---
+        window.registerUser = async function() {
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const upi = document.getElementById('signup-upi').value;
+            const terms = document.getElementById('signup-terms').checked;
+            const errorDiv = document.getElementById('error-msg');
+
+            // Ironclad Validation
+            if (!name || !email || !password || !upi) {
+                errorDiv.innerText = "Please fill in all fields."; return;
+            }
+            if (!terms) {
+                errorDiv.innerText = "You must agree to the Legal Terms to proceed."; return;
+            }
+
+            try {
+                // 1. Ask Google to securely create the account
+                errorDiv.style.color = "#16a34a"; // Green for success
+                errorDiv.innerText = "Creating secure vault...";
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Save their profile (UPI & Name) to the Database securely
+                await setDoc(doc(db, "tutors", user.uid), {
+                    businessName: name,
+                    email: email,
+                    upiId: upi,
+                    legalConsent: true,
+                    joinDate: new Date().toISOString(),
+                    tier: "Basic" // Pre-loading the "Sachet Pricing" architecture
+                });
+
+                errorDiv.innerText = "Account Created! Redirecting to dashboard...";
+                
+                // 3. Send them to the main app (We will build dashboard.html tomorrow)
+                setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
+
+            } catch (error) {
+                errorDiv.style.color = "#dc2626"; // Red for errors
+                errorDiv.innerText = error.message.replace("Firebase: ", ""); // Clean error
             }
         }
-    });
-    window.addEvent = async (type) => {
-        const amt = type === 'Payment' ? document.getElementById('pay-amt').value : 500;
-        await addDoc(collection(db, "businesses", currentUid, "events"), { type, amt: Number(amt), ts: Date.now() });
-        document.getElementById('pay-amt').value = '';
-    };
-    function loadLedger() {
-        const q = query(collection(db, "businesses", currentUid, "events"), orderBy("ts", "desc"));
-        onSnapshot(q, (snap) => {
-            let h = '';
-            snap.forEach(d => { h += `<div class="ledger-row"><span>${d.data().type}</span><b>₹${d.data().amt}</b></div>`; });
-            document.getElementById('ledger-box').innerHTML = h || 'No records.';
-        });
-    }
-</script>
+
+        // --- LOGIN LOGIC ---
+        window.loginUser = async function() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('error-msg');
+
+            if (!email || !password) { errorDiv.innerText = "Enter email and password."; return; }
+
+            try {
+                errorDiv.style.color = "#16a34a";
+                errorDiv.innerText = "Authenticating...";
+                await signInWithEmailAndPassword(auth, email, password);
+                
+                errorDiv.innerText = "Success! Entering vault...";
+                setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
+            } catch (error) {
+                errorDiv.style.color = "#dc2626";
+                errorDiv.innerText = "Invalid Email or Password.";
+            }
+        }
+    </script>
 </body>
 </html>
