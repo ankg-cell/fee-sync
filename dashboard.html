@@ -68,7 +68,7 @@
                 document.body.style.display = "block";
                 
                 // Fetch their specific data from the database
-                const docRef = doc(db, "tutors", user.uid);
+                const docRef = doc(db, "businesses", user.uid);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
