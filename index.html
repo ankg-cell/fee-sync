@@ -5,86 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fee Sync | Smart Payment OS</title>
     <style>
-        :root { --brand: #2563eb; --brand-dark: #1e40af; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; min-height: 100vh; flex-direction: column; }
+        :root { --brand: #2563eb; --brand-dark: #1e40af; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; --red: #ff4d4d; }
+        body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; min-height: 100vh; flex-direction: column; }
         
-        /* Split Layout */
         .layout { display: flex; flex: 1; flex-wrap: wrap; }
         
         /* Left Side: Promotional Pitch */
-        .promo-side { flex: 1; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: white; padding: 60px 40px; display: flex; flex-direction: column; justify-content: center; min-width: 300px; }
-        .promo-side h1 { font-size: 2.8rem; margin-top: 0; margin-bottom: 20px; line-height: 1.2; letter-spacing: -0.5px; }
-        .promo-side p.subtitle { font-size: 1.15rem; margin-bottom: 40px; color: #bfdbfe; line-height: 1.6; font-weight: 300; }
+        .promo-side { flex: 1; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: white; padding: 60px; display: flex; flex-direction: column; min-width: 350px; }
+        
+        /* THE BIG LOGO - BOLD & RED SYNC */
+        .promo-logo { 
+            font-size: 3.5rem; 
+            font-weight: 900; 
+            letter-spacing: -2px; 
+            margin-bottom: 50px; 
+            display: block;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .promo-logo .sync { color: var(--red); text-transform: uppercase; }
+        
+        .promo-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .promo-side h1 { font-size: 2.8rem; margin-top: 0; margin-bottom: 20px; line-height: 1.1; font-weight: 800; }
+        .promo-side p.subtitle { font-size: 1.2rem; margin-bottom: 40px; color: #dbeafe; line-height: 1.6; }
+
         .feature-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 20px; }
-        .feature-list li { background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 12px; font-size: 1.05rem; display: flex; align-items: flex-start; gap: 15px; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); }
-        .feature-icon { font-size: 1.8rem; line-height: 1; }
-        .feature-text h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #ffffff; }
+        .feature-list li { background: rgba(255, 255, 255, 0.08); padding: 20px; border-radius: 16px; display: flex; align-items: flex-start; gap: 15px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        .feature-icon { font-size: 1.8rem; }
+        .feature-text h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #fff; }
         .feature-text p { margin: 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; }
 
         /* Right Side: Authentication Vault */
-        .auth-side { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; background: var(--bg); min-width: 300px; }
-        .auth-card { background: var(--card); padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        .auth-side { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; background: var(--bg); min-width: 350px; }
+        .auth-card { background: var(--card); padding: 40px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); width: 100%; max-width: 420px; text-align: center; }
         
-        .logo { font-size: 2rem; font-weight: bold; color: var(--brand); margin-bottom: 5px; }
-        .tagline { color: #6b7280; font-size: 0.95rem; margin-bottom: 30px; }
+        /* Mobile Logo */
+        .mobile-logo { display: none; font-size: 2rem; font-weight: 900; margin-bottom: 30px; color: var(--brand); letter-spacing: -1px; }
+        .mobile-logo .sync { color: var(--red); }
+
+        @media (max-width: 768px) { 
+            .promo-logo { display: none; } 
+            .mobile-logo { display: block; }
+            .promo-side { padding: 40px 20px; text-align: center; }
+            .promo-side h1 { font-size: 2rem; }
+            .feature-list li { text-align: left; }
+        }
         
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; font-size: 0.85rem; font-weight: bold; color: #4b5563; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; font-size: 1rem; outline: none; transition: border 0.2s; }
-        .input-group input:focus { border-color: var(--brand); }
+        /* Inputs & Buttons */
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: #4b5563; }
+        .input-group input { width: 100%; padding: 14px; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 1rem; transition: 0.3s; box-sizing: border-box; }
+        .input-group input:focus { border-color: var(--brand); outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
         
-        .legal-check { display: flex; align-items: flex-start; gap: 10px; font-size: 0.8rem; color: #6b7280; text-align: left; margin-bottom: 20px; margin-top: 10px;}
-        .legal-check input { margin-top: 3px; }
-        
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
-        .btn-primary { background: var(--brand); color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
-        .btn-primary:hover { background: #1d4ed8; }
-        
-        .toggle-text { margin-top: 20px; font-size: 0.9rem; color: #6b7280; }
-        .toggle-text span { color: var(--brand); font-weight: bold; cursor: pointer; }
+        .btn-primary { background: var(--brand); color: white; width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
         
         .hidden { display: none; }
-        #error-msg { color: #dc2626; font-size: 0.85rem; margin-top: 15px; font-weight: bold; }
+        .toggle-text { margin-top: 25px; color: #6b7280; font-size: 0.9rem; }
+        .toggle-text span { color: var(--brand); font-weight: 800; cursor: pointer; }
+        .legal-check { display: flex; gap: 10px; text-align: left; font-size: 0.8rem; color: #6b7280; margin: 20px 0; line-height: 1.4; }
+        #error-msg { margin-top: 20px; font-weight: bold; color: #ef4444; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
     <div class="layout">
         <div class="promo-side">
-            <h1>Your business. Your money.<br>Zero middlemen.</h1>
-            <p class="subtitle">Fee Sync is the smart financial OS built for independent creators and coaches. Automate your client tracking and get paid instantly—without giving up 2% to a payment gateway.</p>
+            <div class="promo-logo">⚡ FEE <span class="sync">SYNC</span></div>
             
-            <ul class="feature-list">
-                <li>
-                    <span class="feature-icon">💸</span>
-                    <div class="feature-text">
-                        <h3>100% Commission-Free</h3>
-                        <p>No hidden fees. Clients pay your personal UPI directly. You keep every single rupee you earn.</p>
-                    </div>
-                </li>
-                <li>
-                    <span class="feature-icon">🧠</span>
-                    <div class="feature-text">
-                        <h3>Smart Balance Engine</h3>
-                        <p>Ditch the messy spreadsheets. Our automated system perfectly tracks per-session fees, advance credits, and pending dues in real-time.</p>
-                    </div>
-                </li>
-                <li>
-                    <span class="feature-icon">⚡</span>
-                    <div class="feature-text">
-                        <h3>1-Tap WhatsApp Billing</h3>
-                        <p>Generate beautiful, professional payment links and send them straight to your client's WhatsApp with one click.</p>
-                    </div>
-                </li>
-            </ul>
+            <div class="promo-content">
+                <h1>Keep 100% of what you earn.</h1>
+                <p class="subtitle">The elite financial OS for independent businesses. No middlemen, no 2% cuts—just instant UPI transfers directly to you.</p>
+                
+                <ul class="feature-list">
+                    <li>
+                        <span class="feature-icon">💸</span>
+                        <div class="feature-text">
+                            <h3>Zero Commission Forever</h3>
+                            <p>We aren't a gateway. We're your engine. Every rupee goes straight from client to your bank.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="feature-icon">🤖</span>
+                        <div class="feature-text">
+                            <h3>Smart Balance OS</h3>
+                            <p>Real-time tracking for advances and dues. Ditch the messy spreadsheets and old-school ledgers.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="feature-icon">⚡</span>
+                        <div class="feature-text">
+                            <h3>1-Tap WhatsApp Billing</h3>
+                            <p>Professional payment links and receipts sent straight to your client's phone in seconds.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <div class="auth-side">
             <div class="auth-card">
-                <div class="logo">⚡ Fee Sync</div>
-                <div class="tagline">Secure Business Access</div>
-
+                <div class="mobile-logo">⚡ FEE <span class="sync">SYNC</span></div>
+                
                 <div id="login-form">
+                    <h2 style="margin-top:0;">Secure Access</h2>
                     <div class="input-group">
                         <label>Email Address</label>
                         <input type="email" id="login-email" placeholder="you@email.com">
@@ -93,37 +116,35 @@
                         <label>Password</label>
                         <input type="password" id="login-password" placeholder="••••••••">
                     </div>
-                    <button class="btn btn-primary" onclick="loginUser()">Log In Securely</button>
-                    <div class="toggle-text">Don't have an account? <span onclick="toggleForms()">Create one</span></div>
+                    <button class="btn-primary" onclick="loginUser()">Enter Dashboard</button>
+                    <div class="toggle-text">New to Fee Sync? <span onclick="toggleForms()">Create Account</span></div>
                 </div>
 
                 <div id="signup-form" class="hidden">
+                    <h2 style="margin-top:0;">Start Your Engine</h2>
                     <div class="input-group">
                         <label>Business Name</label>
-                        <input type="text" id="signup-name" placeholder="e.g. Night Owl Baking">
+                        <input type="text" id="signup-name" placeholder="e.g. Masterstroke Academy">
                     </div>
                     <div class="input-group">
                         <label>Email Address</label>
                         <input type="email" id="signup-email" placeholder="you@email.com">
                     </div>
                     <div class="input-group">
-                        <label>Password (Min 6 characters)</label>
+                        <label>Password</label>
                         <input type="password" id="signup-password" placeholder="••••••••">
                     </div>
                     <div class="input-group">
-                        <label>Your Receiving UPI ID</label>
-                        <input type="text" id="signup-upi" placeholder="e.g. yourname@oksbi">
+                        <label>Your UPI ID (to receive funds)</label>
+                        <input type="text" id="signup-upi" placeholder="name@oksbi">
                     </div>
-                    
                     <div class="legal-check">
                         <input type="checkbox" id="signup-terms">
-                        <label for="signup-terms">I agree to the Terms of Service. I understand Fee Sync is a tracking utility, not a payment gateway, and takes zero commissions on my transactions.</label>
+                        <label>I agree that Fee Sync is a tracking OS with 0% commission. Payments are peer-to-peer and sent directly to my UPI ID.</label>
                     </div>
-
-                    <button class="btn btn-primary" onclick="registerUser()">Create Free Account</button>
-                    <div class="toggle-text">Already have an account? <span onclick="toggleForms()">Log In</span></div>
+                    <button class="btn-primary" onclick="registerUser()">Launch My OS</button>
+                    <div class="toggle-text">Already registered? <span onclick="toggleForms()">Log In</span></div>
                 </div>
-
                 <div id="error-msg"></div>
             </div>
         </div>
@@ -134,7 +155,7 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // 🚨 REPLACE THIS WITH YOUR EXACT FIREBASE CONFIG 🚨
+        // 🚨 REPLACE WITH YOUR CONFIG 🚨
         const firebaseConfig = {
 apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
 
@@ -168,11 +189,11 @@ apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
             const errorDiv = document.getElementById('error-msg');
 
             if (!name || !email || !password || !upi) { errorDiv.innerText = "Please fill in all fields."; return; }
-            if (!terms) { errorDiv.innerText = "You must agree to the Legal Terms to proceed."; return; }
+            if (!terms) { errorDiv.innerText = "Please agree to the T&C."; return; }
 
             try {
                 errorDiv.style.color = "#16a34a"; 
-                errorDiv.innerText = "Creating secure vault...";
+                errorDiv.innerText = "Connecting to Vault...";
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
@@ -182,15 +203,13 @@ apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
                     upiId: upi,
                     legalConsent: true,
                     joinDate: new Date().toISOString(),
-                    tier: "Basic",
-                    industry: "Uncategorized"
+                    tier: "Basic"
                 });
 
-                errorDiv.innerText = "Account Created! Redirecting to dashboard...";
+                errorDiv.innerText = "Success! Redirecting...";
                 setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
-
             } catch (error) {
-                errorDiv.style.color = "#dc2626"; 
+                errorDiv.style.color = "#ef4444"; 
                 errorDiv.innerText = error.message.replace("Firebase: ", ""); 
             }
         }
@@ -200,18 +219,16 @@ apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
             const password = document.getElementById('login-password').value;
             const errorDiv = document.getElementById('error-msg');
 
-            if (!email || !password) { errorDiv.innerText = "Enter email and password."; return; }
+            if (!email || !password) { errorDiv.innerText = "Enter credentials."; return; }
 
             try {
                 errorDiv.style.color = "#16a34a";
                 errorDiv.innerText = "Authenticating...";
                 await signInWithEmailAndPassword(auth, email, password);
-                
-                errorDiv.innerText = "Success! Entering vault...";
-                setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
+                window.location.href = "dashboard.html";
             } catch (error) {
-                errorDiv.style.color = "#dc2626";
-                errorDiv.innerText = "Invalid Email or Password.";
+                errorDiv.style.color = "#ef4444";
+                errorDiv.innerText = "Invalid Login Details.";
             }
         }
     </script>
