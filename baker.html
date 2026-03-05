@@ -6,7 +6,7 @@
     <title>Bake Sync | Smart Bakery Ledger</title>
     <style>
         :root { --brand: #d97706; --bg: #fffbeb; --card: #ffffff; --text: #333; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 40px; }
         .header { background: var(--brand); color: white; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 600px; margin: 0 auto; }
         .summary-box { background: var(--card); padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #fde68a; }
@@ -43,6 +43,10 @@
 
         <div id="clients-container">
             </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="resetApp()" style="background: none; border: 1px solid #ddd; padding: 8px 15px; border-radius: 5px; color: #888; font-size: 0.8rem; cursor: pointer;">🔄 Reset Demo Data</button>
+        </div>
     </div>
 
     <div id="modal">
@@ -59,8 +63,8 @@
     </div>
 
     <script>
-        // --- 1. THE DATABASE (Stored in Phone's Local Memory) ---
-        let clients = JSON.parse(localStorage.getItem('bakerClients'));
+        // --- 1. THE DATABASE V2 (Forcing a fresh start) ---
+        let clients = JSON.parse(localStorage.getItem('bakerClientsV2'));
 
         // If no data exists, inject dummy data for the demo
         if (!clients) {
@@ -175,19 +179,20 @@
                 return;
             }
 
-            // Create the beautiful WhatsApp text message
             const text = `*BAKE SYNC INVOICE*\n\nHi ${client.name},\nYour bakery order statement is ready.\n\n*Total Pending: ₹${client.balance}*\n\nPlease click the link below to view your full receipt and pay directly via UPI:\nhttps://bakesync.app/pay/demolink123\n\nThank you!`;
-            
-            // Encode the text so the browser can read it
             const encodedText = encodeURIComponent(text);
-            
-            // Open WhatsApp on their phone
             window.open(`https://wa.me/${client.phone}?text=${encodedText}`, '_blank');
         }
 
         // Helper to save data to the phone
         function saveData() {
-            localStorage.setItem('bakerClients', JSON.stringify(clients));
+            localStorage.setItem('bakerClientsV2', JSON.stringify(clients));
+        }
+
+        // Hard Reset Function
+        function resetApp() {
+            localStorage.removeItem('bakerClientsV2');
+            location.reload();
         }
 
         // Boot up the app
