@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Sync | Zero Commission Ledger</title>
+    <title>Fee Sync | Smart Payment OS</title>
     <style>
         :root { --brand: #2563eb; --brand-dark: #1e40af; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; min-height: 100vh; flex-direction: column; }
@@ -13,17 +13,19 @@
         
         /* Left Side: Promotional Pitch */
         .promo-side { flex: 1; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: white; padding: 60px 40px; display: flex; flex-direction: column; justify-content: center; min-width: 300px; }
-        .promo-side h1 { font-size: 2.5rem; margin-top: 0; margin-bottom: 20px; line-height: 1.2; }
-        .promo-side p.subtitle { font-size: 1.2rem; margin-bottom: 40px; color: #bfdbfe; line-height: 1.5; }
-        .feature-list { list-style: none; padding: 0; margin: 0; }
-        .feature-list li { background: rgba(255, 255, 255, 0.1); padding: 15px 20px; border-radius: 10px; margin-bottom: 15px; font-size: 1.05rem; display: flex; align-items: flex-start; gap: 10px; border: 1px solid rgba(255, 255, 255, 0.2); }
-        .feature-icon { font-size: 1.5rem; }
+        .promo-side h1 { font-size: 2.8rem; margin-top: 0; margin-bottom: 20px; line-height: 1.2; letter-spacing: -0.5px; }
+        .promo-side p.subtitle { font-size: 1.15rem; margin-bottom: 40px; color: #bfdbfe; line-height: 1.6; font-weight: 300; }
+        .feature-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 20px; }
+        .feature-list li { background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 12px; font-size: 1.05rem; display: flex; align-items: flex-start; gap: 15px; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); }
+        .feature-icon { font-size: 1.8rem; line-height: 1; }
+        .feature-text h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #ffffff; }
+        .feature-text p { margin: 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; }
 
         /* Right Side: Authentication Vault */
         .auth-side { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; background: var(--bg); min-width: 300px; }
         .auth-card { background: var(--card); padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
         
-        .logo { font-size: 2rem; font-weight: bold; color: var(--brand); margin-bottom: 10px; }
+        .logo { font-size: 2rem; font-weight: bold; color: var(--brand); margin-bottom: 5px; }
         .tagline { color: #6b7280; font-size: 0.95rem; margin-bottom: 30px; }
         
         .input-group { margin-bottom: 15px; text-align: left; }
@@ -49,21 +51,30 @@
 
     <div class="layout">
         <div class="promo-side">
-            <h1>Stop losing money to payment gateways.</h1>
-            <p class="subtitle">Fee Sync is the smart client ledger built for independent businesses. Manage dues, automate math, and collect payments directly to your own bank account.</p>
+            <h1>Your business. Your money.<br>Zero middlemen.</h1>
+            <p class="subtitle">Fee Sync is the smart financial OS built for independent creators and coaches. Automate your client tracking and get paid instantly—without giving up 2% to a payment gateway.</p>
             
             <ul class="feature-list">
                 <li>
-                    <span class="feature-icon">🚫</span>
-                    <div><strong>Zero Commissions.</strong> No 2% platform fees. Clients pay directly to your personal UPI ID. You keep 100% of your earnings.</div>
+                    <span class="feature-icon">💸</span>
+                    <div class="feature-text">
+                        <h3>100% Commission-Free</h3>
+                        <p>No hidden fees. Clients pay your personal UPI directly. You keep every single rupee you earn.</p>
+                    </div>
                 </li>
                 <li>
                     <span class="feature-icon">🧠</span>
-                    <div><strong>Smart Wallet Engine.</strong> Say goodbye to messy notebooks. Automatically track advance payments, pending dues, and per-session math in real-time.</div>
+                    <div class="feature-text">
+                        <h3>Smart Balance Engine</h3>
+                        <p>Ditch the messy spreadsheets. Our automated system perfectly tracks per-session fees, advance credits, and pending dues in real-time.</p>
+                    </div>
                 </li>
                 <li>
-                    <span class="feature-icon">📱</span>
-                    <div><strong>1-Click WhatsApp Billing.</strong> Generate professional payment links and PDF invoices directly to your client's phone with one tap.</div>
+                    <span class="feature-icon">⚡</span>
+                    <div class="feature-text">
+                        <h3>1-Tap WhatsApp Billing</h3>
+                        <p>Generate beautiful, professional payment links and send them straight to your client's WhatsApp with one click.</p>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -89,7 +100,7 @@
                 <div id="signup-form" class="hidden">
                     <div class="input-group">
                         <label>Business Name</label>
-                        <input type="text" id="signup-name" placeholder="e.g. Aryan Coaching">
+                        <input type="text" id="signup-name" placeholder="e.g. Night Owl Baking">
                     </div>
                     <div class="input-group">
                         <label>Email Address</label>
@@ -106,7 +117,7 @@
                     
                     <div class="legal-check">
                         <input type="checkbox" id="signup-terms">
-                        <label for="signup-terms">I agree to the Terms of Service. I understand Fee Sync is a ledger utility, not a payment gateway, and takes zero commissions on my transactions.</label>
+                        <label for="signup-terms">I agree to the Terms of Service. I understand Fee Sync is a tracking utility, not a payment gateway, and takes zero commissions on my transactions.</label>
                     </div>
 
                     <button class="btn btn-primary" onclick="registerUser()">Create Free Account</button>
