@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academy Sync | Cricket Ledger</title>
+    <style>
+        :root { --brand: #15803d; --bg: #f0fdf4; --card: #ffffff; --text: #333; --accent: #22c55e; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        .header { background: var(--brand); color: white; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .summary-box { background: var(--card); padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #bbf7d0; }
+        .summary-box h2 { margin: 0; font-size: 2rem; color: var(--brand); }
+        
+        .search-bar { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px; font-size: 1rem; box-sizing: border-box; outline: none; }
+        
+        .client-card { background: var(--card); border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--brand); }
+        .client-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .client-name { font-size: 1.2rem; font-weight: bold; }
+        .client-balance { color: #dc2626; font-weight: bold; }
+        .client-balance.credit { color: #15803d; }
+        
+        .btn-group { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
+        .btn-log { background: #bbf7d0; color: #166534; }
+        .btn-bill { background: var(--brand); color: white; }
+        .btn-pay { background: #dbeafe; color: #1e40af; }
+        
+        /* Modal Styles */
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 80%; max-width: 350px; text-align: center; }
+        .modal-content select, .modal-content input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;}
+    </style>
+</head>
+<body>
+
+    <div class="header">🏏 Academy Sync</div>
+
+    <div class="container">
+        <div class="summary-box">
+            <p style="margin-top:0; color:#666;">Total Pending Fees (October)</p>
+            <h2>₹12,000</h2>
+        </div>
+
+        <input type="text" class="search-bar" placeholder="🔍 Search players (e.g., Aryan)...">
+
+        <div class="client-card">
+            <div class="client-header">
+                <div class="client-name">Aryan Sharma <br><span style="font-size:0.8rem; color:#888; font-weight:normal;">Batch: U-14 Evening | 📱 Parent: +91 98765 43210</span></div>
+                <div class="client-balance">₹3,000 Due</div>
+            </div>
+            <p style="font-size:0.9rem; color:#555; margin-top:0;"><strong>Last Session:</strong> Oct 15 - Batting Nets</p>
+            <div class="btn-group">
+                <button class="btn btn-log" onclick="openModal('Log Session for Aryan')">➕ Log Session</button>
+                <button class="btn btn-bill" onclick="generateBill('Aryan Sharma', 3000)">🧾 Send Bill</button>
+                <button class="btn btn-pay" onclick="openPaymentModal('Record Payment from Aryan')">💸 Received</button>
+            </div>
+        </div>
+
+        <div class="client-card">
+            <div class="client-header">
+                <div class="client-name">Rohan Desai <br><span style="font-size:0.8rem; color:#888; font-weight:normal;">Batch: U-16 Morning | 📱 Parent: +91 91234 56789</span></div>
+                <div class="client-balance credit">₹1,500 Advance (Wallet)</div>
+            </div>
+            <p style="font-size:0.9rem; color:#555; margin-top:0;"><strong>Last Session:</strong> Oct 14 - Fast Bowling Camp</p>
+            <div class="btn-group">
+                <button class="btn btn-log" onclick="openModal('Log Session for Rohan')">➕ Log Session</button>
+                <button class="btn btn-bill" onclick="alert('Rohan has a positive wallet balance. No bill needed right now!')">🧾 Send Bill</button>
+                <button class="btn btn-pay" onclick="openPaymentModal('Record Payment from Rohan')">💸 Received</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Action</h3>
+            <select>
+                <option>Regular Net Session</option>
+                <option>1-on-1 Special Coaching</option>
+                <option>Practice Match</option>
+            </select>
+            <input type="date" value="2026-10-16">
+            <button class="btn btn-bill" style="width:100%; margin-top:15px;" onclick="closeModal()">Save to Register</button>
+            <button onclick="closeModal()" style="margin-top:10px; background:none; border:none; color:#888; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        function openModal(title) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal').style.display = 'flex';
+        }
+        function openPaymentModal(title) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal').style.display = 'flex';
+            // Just reusing the modal for visual prototype purposes
+        }
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            alert("Session successfully saved to the single source of truth!");
+        }
+        function generateBill(name, amount) {
+            alert(`MAGIC PREVIEW: \n\nGenerating beautiful PDF link for ${name}.\n\nIt will open WhatsApp with: "Dear Parent, the monthly coaching fee for ${name} (₹${amount}) is due. Click here to view the statement and pay via UPI: academysync.app/bill/123"`);
+        }
+    </script>
+</body>
+</html>
