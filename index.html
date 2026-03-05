@@ -132,7 +132,7 @@
                 const user = userCredential.user;
 
                 // 2. Save their profile (UPI & Name) to the Database securely
-                await setDoc(doc(db, "tutors", user.uid), {
+                await setDoc(doc(db, "businesses", user.uid), {
                     businessName: name,
                     email: email,
                     upiId: upi,
