@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Fee Sync</title>
+    <style>
+        :root { --brand: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; display: none; /* Hidden until Firebase checks ID */ }
+        
+        /* Navigation */
+        .navbar { background: var(--brand); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .nav-logo { font-size: 1.2rem; font-weight: bold; }
+        .logout-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: 0.2s; }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+
+        /* Main Content */
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .welcome-card { background: var(--card); padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--brand); margin-bottom: 20px; }
+        .welcome-card h1 { margin: 0 0 10px 0; font-size: 1.8rem; color: var(--brand); }
+        .welcome-card p { margin: 0; color: #6b7280; font-size: 1rem; }
+        
+        .placeholder-box { background: var(--card); padding: 40px; border-radius: 15px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-logo">⚡ Fee Sync</div>
+        <button class="logout-btn" onclick="logoutUser()">Log Out</button>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1>Welcome, <span id="business-name">Loading...</span></h1>
+            <p>Your receiving UPI ID is set to: <strong id="upi-display" style="color: var(--text);">...</strong></p>
+        </div>
+
+        <div class="placeholder-box">
+            <h3>🗄️ Your Client Database Goes Here</h3>
+            <p>Tomorrow, we will build the real Master Client List, Wallet Math Engine, and WhatsApp PDF generator right in this spot.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // 🚨 PASTE YOUR EXACT FIREBASE CONFIG HERE 🚨
+        const firebaseConfig = {
+  apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+  authDomain: "fee-sync.firebaseapp.com",
+  projectId: "fee-sync",
+  storageBucket: "fee-sync.firebasestorage.app",
+  messagingSenderId: "572245525299",
+  appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // THE BOUNCER: Check if user is actually logged in
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in. Let them see the page.
+                document.body.style.display = "block";
+                
+                // Fetch their specific data from the database
+                const docRef = doc(db, "tutors", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    document.getElementById('business-name').innerText = userData.businessName;
+                    document.getElementById('upi-display').innerText = userData.upiId;
+                } else {
+                    document.getElementById('business-name').innerText = "Founder";
+                }
+            } else {
+                // User is NOT signed in. Kick them back to login page.
+                window.location.href = "index.html";
+            }
+        });
+
+        // LOGOUT LOGIC
+        window.logoutUser = function() {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            }).catch((error) => {
+                alert("Error logging out.");
+            });
+        }
+    </script>
+</body>
+</html>
