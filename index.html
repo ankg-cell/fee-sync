@@ -5,9 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fee Sync | Zero Commission Ledger</title>
     <style>
-        :root { --brand: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        :root { --brand: #2563eb; --brand-dark: #1e40af; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; min-height: 100vh; flex-direction: column; }
+        
+        /* Split Layout */
+        .layout { display: flex; flex: 1; flex-wrap: wrap; }
+        
+        /* Left Side: Promotional Pitch */
+        .promo-side { flex: 1; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: white; padding: 60px 40px; display: flex; flex-direction: column; justify-content: center; min-width: 300px; }
+        .promo-side h1 { font-size: 2.5rem; margin-top: 0; margin-bottom: 20px; line-height: 1.2; }
+        .promo-side p.subtitle { font-size: 1.2rem; margin-bottom: 40px; color: #bfdbfe; line-height: 1.5; }
+        .feature-list { list-style: none; padding: 0; margin: 0; }
+        .feature-list li { background: rgba(255, 255, 255, 0.1); padding: 15px 20px; border-radius: 10px; margin-bottom: 15px; font-size: 1.05rem; display: flex; align-items: flex-start; gap: 10px; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .feature-icon { font-size: 1.5rem; }
+
+        /* Right Side: Authentication Vault */
+        .auth-side { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; background: var(--bg); min-width: 300px; }
         .auth-card { background: var(--card); padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        
         .logo { font-size: 2rem; font-weight: bold; color: var(--brand); margin-bottom: 10px; }
         .tagline { color: #6b7280; font-size: 0.95rem; margin-bottom: 30px; }
         
@@ -32,82 +47,102 @@
 </head>
 <body>
 
-    <div class="auth-card">
-        <div class="logo">⚡ Fee Sync</div>
-        <div class="tagline">The Zero-Commission Client Ledger.</div>
-
-        <div id="login-form">
-            <div class="input-group">
-                <label>Email Address</label>
-                <input type="email" id="login-email" placeholder="you@email.com">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="login-password" placeholder="••••••••">
-            </div>
-            <button class="btn btn-primary" onclick="loginUser()">Log In Securely</button>
-            <div class="toggle-text">Don't have an account? <span onclick="toggleForms()">Create one</span></div>
-        </div>
-
-        <div id="signup-form" class="hidden">
-            <div class="input-group">
-                <label>Full Name or Business Name</label>
-                <input type="text" id="signup-name" placeholder="e.g. Aryan Coaching">
-            </div>
-            <div class="input-group">
-                <label>Email Address</label>
-                <input type="email" id="signup-email" placeholder="you@email.com">
-            </div>
-            <div class="input-group">
-                <label>Password (Min 6 characters)</label>
-                <input type="password" id="signup-password" placeholder="••••••••">
-            </div>
-            <div class="input-group">
-                <label>Your Receiving UPI ID (Crucial for Payments)</label>
-                <input type="text" id="signup-upi" placeholder="e.g. yourname@oksbi">
-            </div>
+    <div class="layout">
+        <div class="promo-side">
+            <h1>Stop losing money to payment gateways.</h1>
+            <p class="subtitle">Fee Sync is the smart client ledger built for independent businesses. Manage dues, automate math, and collect payments directly to your own bank account.</p>
             
-            <div class="legal-check">
-                <input type="checkbox" id="signup-terms">
-                <label for="signup-terms">I agree to the Terms of Service. I understand Fee Sync is a ledger utility, not a payment gateway, and takes zero commissions on my transactions.</label>
-            </div>
-
-            <button class="btn btn-primary" onclick="registerUser()">Create Free Account</button>
-            <div class="toggle-text">Already have an account? <span onclick="toggleForms()">Log In</span></div>
+            <ul class="feature-list">
+                <li>
+                    <span class="feature-icon">🚫</span>
+                    <div><strong>Zero Commissions.</strong> No 2% platform fees. Clients pay directly to your personal UPI ID. You keep 100% of your earnings.</div>
+                </li>
+                <li>
+                    <span class="feature-icon">🧠</span>
+                    <div><strong>Smart Wallet Engine.</strong> Say goodbye to messy notebooks. Automatically track advance payments, pending dues, and per-session math in real-time.</div>
+                </li>
+                <li>
+                    <span class="feature-icon">📱</span>
+                    <div><strong>1-Click WhatsApp Billing.</strong> Generate professional payment links and PDF invoices directly to your client's phone with one tap.</div>
+                </li>
+            </ul>
         </div>
 
-        <div id="error-msg"></div>
+        <div class="auth-side">
+            <div class="auth-card">
+                <div class="logo">⚡ Fee Sync</div>
+                <div class="tagline">Secure Business Access</div>
+
+                <div id="login-form">
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="login-email" placeholder="you@email.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" onclick="loginUser()">Log In Securely</button>
+                    <div class="toggle-text">Don't have an account? <span onclick="toggleForms()">Create one</span></div>
+                </div>
+
+                <div id="signup-form" class="hidden">
+                    <div class="input-group">
+                        <label>Business Name</label>
+                        <input type="text" id="signup-name" placeholder="e.g. Aryan Coaching">
+                    </div>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="signup-email" placeholder="you@email.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Password (Min 6 characters)</label>
+                        <input type="password" id="signup-password" placeholder="••••••••">
+                    </div>
+                    <div class="input-group">
+                        <label>Your Receiving UPI ID</label>
+                        <input type="text" id="signup-upi" placeholder="e.g. yourname@oksbi">
+                    </div>
+                    
+                    <div class="legal-check">
+                        <input type="checkbox" id="signup-terms">
+                        <label for="signup-terms">I agree to the Terms of Service. I understand Fee Sync is a ledger utility, not a payment gateway, and takes zero commissions on my transactions.</label>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="registerUser()">Create Free Account</button>
+                    <div class="toggle-text">Already have an account? <span onclick="toggleForms()">Log In</span></div>
+                </div>
+
+                <div id="error-msg"></div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
-        // 1. Import Firebase core and Auth/Firestore tools
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         // 🚨 REPLACE THIS WITH YOUR EXACT FIREBASE CONFIG 🚨
         const firebaseConfig = {
-           apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
-  authDomain: "fee-sync.firebaseapp.com",
-  projectId: "fee-sync",
-  storageBucket: "fee-sync.firebasestorage.app",
-  messagingSenderId: "572245525299",
-  appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "fee-sync.firebaseapp.com",
+            projectId: "fee-sync",
+            storageBucket: "fee-sync.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
-        // 2. Initialize the App
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // UI Toggle Function
         window.toggleForms = function() {
             document.getElementById('login-form').classList.toggle('hidden');
             document.getElementById('signup-form').classList.toggle('hidden');
-            document.getElementById('error-msg').innerText = ''; // Clear errors
+            document.getElementById('error-msg').innerText = ''; 
         }
 
-        // --- REGISTRATION LOGIC ---
         window.registerUser = async function() {
             const name = document.getElementById('signup-name').value;
             const email = document.getElementById('signup-email').value;
@@ -116,43 +151,34 @@
             const terms = document.getElementById('signup-terms').checked;
             const errorDiv = document.getElementById('error-msg');
 
-            // Ironclad Validation
-            if (!name || !email || !password || !upi) {
-                errorDiv.innerText = "Please fill in all fields."; return;
-            }
-            if (!terms) {
-                errorDiv.innerText = "You must agree to the Legal Terms to proceed."; return;
-            }
+            if (!name || !email || !password || !upi) { errorDiv.innerText = "Please fill in all fields."; return; }
+            if (!terms) { errorDiv.innerText = "You must agree to the Legal Terms to proceed."; return; }
 
             try {
-                // 1. Ask Google to securely create the account
-                errorDiv.style.color = "#16a34a"; // Green for success
+                errorDiv.style.color = "#16a34a"; 
                 errorDiv.innerText = "Creating secure vault...";
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // 2. Save their profile (UPI & Name) to the Database securely
                 await setDoc(doc(db, "businesses", user.uid), {
                     businessName: name,
                     email: email,
                     upiId: upi,
                     legalConsent: true,
                     joinDate: new Date().toISOString(),
-                    tier: "Basic" // Pre-loading the "Sachet Pricing" architecture
+                    tier: "Basic",
+                    industry: "Uncategorized"
                 });
 
                 errorDiv.innerText = "Account Created! Redirecting to dashboard...";
-                
-                // 3. Send them to the main app (We will build dashboard.html tomorrow)
                 setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
 
             } catch (error) {
-                errorDiv.style.color = "#dc2626"; // Red for errors
-                errorDiv.innerText = error.message.replace("Firebase: ", ""); // Clean error
+                errorDiv.style.color = "#dc2626"; 
+                errorDiv.innerText = error.message.replace("Firebase: ", ""); 
             }
         }
 
-        // --- LOGIN LOGIC ---
         window.loginUser = async function() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
