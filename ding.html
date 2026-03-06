@@ -10,7 +10,8 @@
         :root { --blue: #0ea5e9; --navy: #0f172a; --bg: #f8fafc; }
         body { font-family: sans-serif; background: var(--bg); text-align: center; padding: 20px; color: var(--navy); }
         .card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 400px; margin: auto; }
-        .token { font-size: 5rem; font-weight: 900; color: var(--blue); margin: 10px 0; }
+        .token-display { font-size: 5rem; font-weight: 900; color: var(--blue); margin: 10px 0; }
+        .my-number { font-size: 1.2rem; background: var(--navy); color: white; padding: 5px 15px; border-radius: 50px; display: inline-block; margin-bottom: 15px; }
         .btn { background: var(--navy); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
         .btn-blue { background: var(--blue); }
         .hidden { display: none; }
@@ -21,53 +22,83 @@
 
     <div id="setup">
         <h2>⚡ FEE SYNC</h2>
-        <p>Live Queue System</p>
+        <p>Select your role for the test:</p>
         <button class="btn" onclick="init('doctor')">I AM RECEPTION</button>
-        <button class="btn btn-blue" onclick="init('patient')">I AM PATIENT (#5)</button>
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+        <p>Simulate Patient Token #:</p>
+        <input type="number" id="token-input" value="5" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 60px;">
+        <button class="btn btn-blue" onclick="init('patient')">I AM PATIENT</button>
     </div>
 
     <div id="app" class="hidden">
-        <div id="sync-status">● INITIALIZING...</div>
+        <div id="sync-status">● Connecting...</div>
         <div class="card">
-            <p id="role-label">Current Token</p>
-            <div class="token" id="token-val">0</div>
+            <div id="patient-header" class="hidden">
+                <div class="my-number">My Token: #<span id="my-token-val">0</span></div>
+            </div>
+            <p id="role-label">Now Calling</p>
+            <div class="token-display" id="now-calling-val">0</div>
+            <p id="msg-box" style="font-weight: bold; color: var(--blue); min-height: 1.2em;"></p>
         </div>
         <button id="action-btn" class="btn btn-blue hidden" onclick="triggerNext()">CALL NEXT PATIENT</button>
     </div>
 
     <script>
-        // 2. PASTE YOUR ACTUAL FIREBASE CONFIG HERE
+        // PASTE YOUR ACTUAL FIREBASE CONFIG HERE
         const firebaseConfig = {
-    apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+  apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+
   authDomain: "fee-sync.firebaseapp.com",
+
   databaseURL: "https://fee-sync-default-rtdb.firebaseio.com",
+
   projectId: "fee-sync",
+
   storageBucket: "fee-sync.firebasestorage.app",
+
   messagingSenderId: "572245525299",
+
   appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
         };
 
-        // 3. START FIREBASE SAFELY
-        try {
-            firebase.initializeApp(firebaseConfig);
-            console.log("Firebase Initialized");
-        } catch (e) {
-            alert("Firebase Setup Error: " + e.message);
-        }
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database().ref('live_queue/clinic_001');
 
-        const db = firebase.database().ref('live_queue/clinic_test');
-        let currentToken = 0;
-        const patientToken = 5; 
+        let currentCalling = 0;
+        let myAssignedToken = 0;
         let audioCtx;
 
-        function init(role) {
-            // Start Audio Context on first click (Browser Rule)
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playDing(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
             
+            // Tone logic: Higher = More urgent
+            if (type === 'near') osc.frequency.setValueAtTime(440, audioCtx.currentTime); // Low A
+            else if (type === 'next') osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High A
+            else osc.frequency.setValueAtTime(1200, audioCtx.currentTime); // Emergency
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            if (navigator.vibrate) navigator.vibrate(type === 'now' ? 1000 : 200);
+        }
+
+        function init(role) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
 
-            // 4. THE LISTENER
+            if (role === 'patient') {
+                myAssignedToken = parseInt(document.getElementById('token-input').value);
+                document.getElementById('patient-header').classList.remove('hidden');
+                document.getElementById('my-token-val').innerText = myAssignedToken;
+            } else {
+                document.getElementById('action-btn').classList.remove('hidden');
+            }
+
             db.on('value', (snapshot) => {
                 const status = document.getElementById('sync-status');
                 status.innerText = "● LIVE SYNC ACTIVE";
@@ -75,39 +106,44 @@
                 
                 const data = snapshot.val();
                 if (data && data.current !== undefined) {
-                    const newVal = data.current;
-                    if (newVal > currentToken || currentToken === 0) {
-                        currentToken = newVal;
-                        document.getElementById('token-val').innerText = currentToken;
-                        if (role === 'patient') playDing();
+                    currentCalling = data.current;
+                    document.getElementById('now-calling-val').innerText = currentCalling;
+
+                    if (role === 'patient') {
+                        checkMyTurn(currentCalling);
                     }
                 }
-            }, (error) => {
-                alert("Permission Error: Check Realtime Database Rules!");
-                console.error(error);
             });
+        }
 
-            if(role === 'doctor') {
-                document.getElementById('action-btn').classList.remove('hidden');
+        function checkMyTurn(now) {
+            const msg = document.getElementById('msg-box');
+            
+            // Logic for the Patient Experience
+            if (now === (myAssignedToken - 3)) {
+                msg.innerText = "3 people ahead. Get ready!";
+                playDing('near');
+            } 
+            else if (now === (myAssignedToken - 1)) {
+                msg.innerText = "You are NEXT! Head to cabin.";
+                playDing('next');
+                alert("You are NEXT in line!");
+            }
+            else if (now === myAssignedToken) {
+                msg.innerText = "IT IS YOUR TURN! Please enter.";
+                playDing('now');
+            }
+            else if (now > myAssignedToken) {
+                msg.innerText = "Your turn has passed.";
+                msg.style.color = "red";
+            }
+            else {
+                msg.innerText = ""; // Stay quiet for others
             }
         }
 
-        function playDing() {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-            if (navigator.vibrate) navigator.vibrate(200);
-        }
-
         function triggerNext() {
-            db.set({ current: currentToken + 1 })
-            .catch(err => alert("Write failed: " + err.message));
+            db.set({ current: currentCalling + 1 });
         }
     </script>
 </body>
