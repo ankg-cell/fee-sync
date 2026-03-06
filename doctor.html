@@ -3,108 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Sync | Clinical OS</title>
+    <title>Fee Sync | Clinic Speed-Log</title>
     <style>
-        :root { --med-blue: #0f172a; --med-accent: #3b82f6; --bg: #f8fafc; --white: #ffffff; --red: #ef4444; --green: #22c55e; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1e293b; padding-bottom: 50px; }
+        :root { --med-blue: #0f172a; --med-accent: #3b82f6; --bg: #f1f5f9; --white: #ffffff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; text-align: center; }
         
-        .header { background: var(--white); padding: 15px 20px; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
-        .logo { font-weight: 800; color: var(--med-blue); font-size: 1.2rem; }
-        .logo span { color: var(--red); }
+        .header { background: var(--med-blue); color: white; padding: 20px; }
+        .day-total { font-size: 2.5rem; font-weight: 800; margin: 10px 0; }
+        .day-label { font-size: 0.8rem; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
 
-        .container { padding: 20px; max-width: 500px; margin: auto; }
+        .container { padding: 20px; max-width: 400px; margin: auto; }
 
-        /* Quick Add Section */
-        .add-patient-box { background: var(--med-blue); color: white; padding: 20px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2); }
-        .add-patient-box h2 { margin: 0 0 15px 0; font-size: 1rem; color: #bfdbfe; }
-        .input-group { display: flex; flex-direction: column; gap: 10px; }
-        input { padding: 12px; border-radius: 10px; border: none; font-size: 1rem; }
-        .btn-add { background: var(--med-accent); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 5px; }
+        /* SPEED BUTTONS */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .log-btn { background: var(--white); border: 2px solid #e2e8f0; padding: 25px 10px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .log-btn:active { transform: scale(0.95); background: #dbeafe; }
+        .log-btn div { font-weight: 800; font-size: 1.2rem; color: var(--med-blue); }
+        .log-btn small { color: #64748b; font-weight: 600; }
 
-        /* Patient Cards */
-        .patient-card { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid #e2e8f0; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .patient-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-        .patient-info h3 { margin: 0; font-size: 1.1rem; }
-        
-        .wallet-engine { background: #f1f5f9; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .engine-col small { display: block; font-size: 0.65rem; color: #64748b; font-weight: 700; }
-        .engine-col span { font-weight: 700; font-size: 0.9rem; }
+        .custom-log { background: var(--white); margin-top: 15px; padding: 20px; border-radius: 20px; border: 2px solid #e2e8f0; }
+        input { width: 100%; border: none; font-size: 1.2rem; font-weight: 700; text-align: center; outline: none; }
+        .btn-main { background: var(--med-accent); color: white; width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; margin-top: 10px; }
 
-        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { border: none; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
-        .btn-log { background: #e2e8f0; color: var(--med-blue); }
-        .btn-bill { background: #dcfce7; color: var(--green); }
-
-        .empty-state { text-align: center; color: #94a3b8; margin-top: 40px; }
+        .history { text-align: left; margin-top: 30px; }
+        .history-item { background: white; padding: 12px 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--med-accent); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo">⚡ FEE <span>SYNC</span> <small style="font-weight:400; font-size:0.7rem;">Doctor Pro</small></div>
+        <div class="day-label">Total Collection Today</div>
+        <div class="day-total">₹<span id="grand-total">0</span></div>
+        <div id="visit-count" style="font-size: 0.9rem; opacity: 0.8;">0 Patients Seen</div>
     </div>
 
     <div class="container">
-        <div class="add-patient-box">
-            <h2>+ New Consultation</h2>
-            <div class="input-group">
-                <input type="text" id="p-name" placeholder="Patient Name">
-                <input type="number" id="p-fee" placeholder="Consultation Fee (₹)">
-                <button class="btn-add" onclick="addPatient()">Start Patient Session</button>
+        <div class="grid">
+            <div class="log-btn" onclick="quickLog(500, 'Consultation')">
+                <small>CONSULT</small>
+                <div>₹500</div>
+            </div>
+            <div class="log-btn" onclick="quickLog(200, 'Follow-up')">
+                <small>FOLLOW-UP</small>
+                <div>₹200</div>
             </div>
         </div>
 
-        <h2 style="font-size: 1rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Live Patient Ledger</h2>
-        <div id="patient-list">
-            <div class="empty-state" id="empty-msg">No active patients logged today.</div>
+        <div class="custom-log">
+            <input type="number" id="custom-amt" placeholder="Other Amount (₹)">
+            <button class="btn-main" onclick="customLog()">Log Procedure</button>
+        </div>
+
+        <div class="history">
+            <h3 style="font-size: 0.9rem; color: #64748b;">RECENT LOGS</h3>
+            <div id="log-list"></div>
         </div>
     </div>
 
     <script>
-        function addPatient() {
-            const name = document.getElementById('p-name').value;
-            const fee = document.getElementById('p-fee').value;
-            const list = document.getElementById('patient-list');
-            const emptyMsg = document.getElementById('empty-msg');
+        let total = 0;
+        let count = 0;
 
-            if (!name || !fee) { alert("Please enter name and fee"); return; }
-
-            if (emptyMsg) emptyMsg.style.display = 'none';
-
-            const card = document.createElement('div');
-            card.className = 'patient-card';
-            card.innerHTML = `
-                <div class="patient-header">
-                    <div class="patient-info">
-                        <h3>${name}</h3>
-                        <p style="margin:2px 0; font-size:0.8rem; color:#64748b;">Visit ID: #${Math.floor(1000 + Math.random() * 9000)}</p>
-                    </div>
-                    <span style="font-size:0.7rem; font-weight:800; color:#3b82f6;">ACTIVE</span>
-                </div>
-                <div class="wallet-engine">
-                    <div class="engine-col">
-                        <small>SERVICE FEE</small>
-                        <span>₹${fee}</span>
-                    </div>
-                    <div class="engine-col" style="text-align:right;">
-                        <small>STATUS</small>
-                        <span style="color:var(--red);">UNPAID</span>
-                    </div>
-                </div>
-                <div class="actions">
-                    <button class="btn btn-log" onclick="this.parentElement.previousElementSibling.lastElementChild.lastElementChild.innerText='PAID'; this.parentElement.previousElementSibling.lastElementChild.lastElementChild.style.color='#22c55e'; this.innerText='VISIT LOGGED';">MARK PAID</button>
-                    <button class="btn btn-bill" onclick="alert('WhatsApping Bill & UPI Link to ${name}...')">SEND RECEIPT</button>
-                </div>
-            `;
-
-            list.prepend(card);
-            
-            // Clear inputs
-            document.getElementById('p-name').value = '';
-            document.getElementById('p-fee').value = '';
+        function quickLog(amt, type) {
+            total += amt;
+            count++;
+            updateUI(amt, type);
         }
-    </script>
-</body>
-</html>
+
+        function customLog() {
+            const amt = parseInt(document.getElementById('custom-amt').value);
+            if (!amt) return;
+            total += amt;
+            count++;
+            updateUI(amt, 'Procedure');
+            document.getElementById('custom-amt').value = '';
+        }
+
+        function updateUI(amt, type) {
+            document.getElementById('grand-total').innerText = total.toLocaleString('en-IN');
+            document.
