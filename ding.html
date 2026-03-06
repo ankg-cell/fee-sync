@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Sync | Smart Queue</title>
+    <title>Fee Sync | Smart Voice Queue</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --brand: #4f46e5; --brand-dark: #3730a3; --slate: #0f172a; --bg: #fdfdfd; --accent: #22c55e; }
-        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--slate); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--slate); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* Branding */
-        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 30px; color: var(--brand); }
+        /* Brand Identity */
+        .logo { font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 30px; color: var(--brand); margin-top: 20px; }
         .logo span { color: var(--slate); }
 
-        /* Card Styling */
-        .card { background: white; width: 100%; max-width: 380px; border-radius: 32px; padding: 40px 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; position: relative; }
-        .status-dot { position: absolute; top: 20px; right: 20px; width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
-        .status-online { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        /* Card System */
+        .card { background: white; width: 100%; max-width: 360px; border-radius: 32px; padding: 40px 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; position: relative; text-align: center; }
+        .status-dot { position: absolute; top: 25px; right: 25px; width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; transition: 0.3s; }
+        .status-online { background: var(--accent); box-shadow: 0 0 12px var(--accent); }
 
-        /* Typography */
-        h2 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 5px; }
-        .token-num { font-size: 7rem; font-weight: 800; color: var(--slate); line-height: 1; margin: 20px 0; }
-        .patient-info { background: #f1f5f9; padding: 10px 20px; border-radius: 100px; font-weight: 600; font-size: 0.9rem; display: inline-block; margin-bottom: 20px; }
+        /* Queue Typography */
+        h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 8px; }
+        .token-num { font-size: 7.5rem; font-weight: 800; color: var(--slate); line-height: 1; margin: 25px 0; font-variant-numeric: tabular-nums; }
+        .patient-badge { background: #f1f5f9; padding: 8px 18px; border-radius: 100px; font-weight: 700; font-size: 0.95rem; display: inline-block; margin-bottom: 25px; color: var(--brand); }
 
-        /* Buttons */
-        .btn { width: 100%; max-width: 380px; padding: 20px; border-radius: 20px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 15px; }
-        .btn-primary { background: var(--brand); color: white; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2); }
-        .btn-primary:active { transform: scale(0.97); background: var(--brand-dark); }
+        /* Professional Buttons */
+        .btn { width: 100%; max-width: 360px; padding: 20px; border-radius: 20px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 15px; outline: none; -webkit-tap-highlight-color: transparent; }
+        .btn-primary { background: var(--brand); color: white; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25); }
+        .btn-primary:active { transform: scale(0.96); background: var(--brand-dark); }
         .btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
-        .btn-reset { background: transparent; color: #94a3b8; font-size: 0.8rem; margin-top: 50px; text-decoration: underline; }
+        .btn-reset { background: transparent; color: #94a3b8; font-size: 0.85rem; margin-top: 60px; text-decoration: underline; font-weight: 500; }
 
         .hidden { display: none; }
-        #msg { color: var(--brand); font-weight: 600; min-height: 1.5em; margin-top: 10px; }
+        #announcement-text { color: var(--brand); font-weight: 700; font-size: 1.1rem; min-height: 1.4em; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -41,36 +41,40 @@
 
     <div id="setup-view">
         <div class="card">
-            <h2>Select Dashboard</h2>
-            <button class="btn btn-primary" onclick="startApp('doctor')">Clinic Reception</button>
-            <div style="margin: 20px 0; color: #cbd5e1;">OR</div>
-            <p style="font-size: 0.8rem; color: #64748b;">Simulate Patient Token:</p>
-            <input type="number" id="token-in" value="5" style="width: 60px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; text-align: center; font-size: 1.1rem;">
-            <button class="btn btn-outline" onclick="startApp('patient')">Patient View</button>
+            <h2>Access Dashboard</h2>
+            <button class="btn btn-primary" onclick="launch('doctor')">Clinic Reception</button>
+            <div style="margin: 25px 0; font-size: 0.8rem; color: #cbd5e1; font-weight: 800;">OR</div>
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px;">Set Patient Token #:</p>
+            <input type="number" id="token-input" value="5" style="width: 70px; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;">
+            <button class="btn btn-outline" onclick="launch('patient')">Join as Patient</button>
         </div>
     </div>
 
-    <div id="main-view" class="hidden">
+    <div id="app-view" class="hidden">
         <div class="card">
-            <div id="dot" class="status-dot"></div>
-            <div id="patient-tag" class="patient-info hidden">My Token: #<span id="my-num">0</span></div>
-            <h2 id="view-title">Now Calling</h2>
-            <div class="token-num" id="live-num">0</div>
-            <div id="msg"></div>
+            <div id="connection-dot" class="status-dot"></div>
+            <div id="patient-header" class="hidden">
+                <div class="patient-badge">Your Token: #<span id="my-token-display">0</span></div>
+            </div>
+            <h2 id="display-label">Current Calling</h2>
+            <div class="token-num" id="live-token-val">0</div>
+            <div id="announcement-text"></div>
         </div>
 
-        <div id="doctor-controls" class="hidden">
-            <button class="btn btn-primary" onclick="nextPatient()">Next Patient</button>
-            <button class="btn btn-reset" onclick="resetDay()">End of Day: Reset Queue</button>
+        <div id="doctor-zone" class="hidden">
+            <button class="btn btn-primary" onclick="callNext()">Call Next Patient</button>
+            <button class="btn btn-reset" onclick="triggerReset()">Reset Queue for New Day</button>
         </div>
 
-        <div id="patient-controls" class="hidden">
-            <p style="color: #64748b; font-size: 0.8rem;">Keep this page open. It will Ding automatically.</p>
+        <div id="patient-zone" class="hidden" style="margin-top: 20px;">
+            <p style="color: #94a3b8; font-size: 0.8rem; line-height: 1.4;">
+                Live voice alerts enabled.<br>Please keep your volume up.
+            </p>
         </div>
     </div>
 
     <script>
-        // FIREBASE CONFIG - PASTE YOURS HERE
+        // 1. DATABASE CONFIG
         const firebaseConfig = {
   apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
 
@@ -90,78 +94,97 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('live_queue/clinic_test');
 
-        let currentVal = 0;
-        let myToken = 0;
-        let role = '';
+        let currentActiveToken = 0;
+        let myAssignedToken = 0;
+        let userRole = '';
         let audioCtx;
 
-        function playSound(freq, duration) {
+        // 2. VOICE & SOUND ENGINE
+        function playAlert(freq, type) {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.frequency.value = freq;
             gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.start(); osc.stop(audioCtx.currentTime + duration);
-            if (navigator.vibrate) navigator.vibrate(200);
+            gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+            if (navigator.vibrate) navigator.vibrate(type === 'urgent' ? 1000 : 200);
         }
 
-        function startApp(userRole) {
-            role = userRole;
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // 3. APP LOGIC
+        function launch(role) {
+            userRole = role;
+            // Initialize Audio Context on click (Browser requirement)
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
             document.getElementById('setup-view').classList.add('hidden');
-            document.getElementById('main-view').classList.remove('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
 
             if (role === 'patient') {
-                myToken = parseInt(document.getElementById('token-in').value);
-                document.getElementById('patient-tag').classList.remove('hidden');
-                document.getElementById('my-num').innerText = myToken;
-                document.getElementById('patient-controls').classList.remove('hidden');
+                myAssignedToken = parseInt(document.getElementById('token-input').value);
+                document.getElementById('patient-header').classList.remove('hidden');
+                document.getElementById('my-token-display').innerText = myAssignedToken;
+                document.getElementById('patient-zone').classList.remove('hidden');
             } else {
-                document.getElementById('doctor-controls').classList.remove('hidden');
+                document.getElementById('doctor-zone').classList.remove('hidden');
             }
 
-            // LISTEN TO CLOUD
+            // Real-time Listener
             db.on('value', (snap) => {
-                document.getElementById('dot').classList.add('status-online');
+                document.getElementById('connection-dot').classList.add('status-online');
                 const data = snap.val();
                 if (data && data.current !== undefined) {
-                    const newVal = data.current;
+                    const cloudVal = data.current;
                     
-                    // Logic for updates
-                    if (newVal === 0 || newVal > currentVal) {
-                        currentVal = newVal;
-                        document.getElementById('live-num').innerText = currentVal;
-                        if (role === 'patient') processPatientLogic(currentVal);
+                    if (cloudVal === 0 || cloudVal > currentActiveToken) {
+                        currentActiveToken = cloudVal;
+                        document.getElementById('live-token-val').innerText = currentActiveToken;
+                        if (userRole === 'patient') runPatientChecks(currentActiveToken);
                     }
                 }
             });
         }
 
-        function processPatientLogic(now) {
-            const msg = document.getElementById('msg');
-            if (now === (myToken - 3)) {
-                msg.innerText = "3 People Ahead. Get Ready!";
-                playSound(440, 0.5); // Low Ding
-            } else if (now === (myToken - 1)) {
-                msg.innerText = "You are NEXT! Move to cabin.";
-                playSound(880, 0.8); // Sharp Ding
-                alert("Prepare to enter. You are next!");
-            } else if (now === myToken) {
-                msg.innerText = "IT IS YOUR TURN!";
-                playSound(1200, 1.5); // Long Alert
+        function runPatientChecks(now) {
+            const display = document.getElementById('announcement-text');
+            
+            if (now === (myAssignedToken - 3)) {
+                display.innerText = "Get Ready: 3 Ahead";
+                playAlert(440, 'normal');
+                speakText("Three patients remaining. Please get ready.");
+            } 
+            else if (now === (myAssignedToken - 1)) {
+                display.innerText = "MOVE TO CABIN NOW";
+                playAlert(880, 'normal');
+                speakText("You are next in line. Please get up and move towards the cabin now.");
+                alert("You are NEXT! Move to the cabin.");
+            }
+            else if (now === myAssignedToken) {
+                display.innerText = "IT IS YOUR TURN!";
+                playAlert(1200, 'urgent');
+                speakText("It is your turn. Please enter the doctors room.");
             } else {
-                msg.innerText = "";
+                display.innerText = "";
             }
         }
 
-        function nextPatient() {
-            db.set({ current: currentVal + 1 });
+        function callNext() {
+            db.set({ current: currentActiveToken + 1 });
         }
 
-        function resetDay() {
-            if (confirm("Reset queue to 0 for a new day?")) {
+        function triggerReset() {
+            if (confirm("End of Day? This resets the counter to 0.")) {
                 db.set({ current: 0 }).then(() => location.reload());
             }
         }
