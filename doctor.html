@@ -3,82 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Sync | Clinic Speed-Log</title>
+    <title>Fee Sync | Live Scoreboard</title>
     <style>
-        :root { --med-blue: #0f172a; --med-accent: #3b82f6; --bg: #f1f5f9; --white: #ffffff; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; text-align: center; }
+        :root { --dark: #0f172a; --accent: #22c55e; --blue: #3b82f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        .header { background: var(--med-blue); color: white; padding: 20px; }
-        .day-total { font-size: 2.5rem; font-weight: 800; margin: 10px 0; }
-        .day-label { font-size: 0.8rem; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
+        /* TOP SCOREBOARD */
+        .scoreboard { background: var(--dark); color: white; padding: 40px 20px; text-align: center; border-radius: 0 0 40px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; margin-bottom: 5px; }
+        .total-amt { font-size: 4rem; font-weight: 900; color: var(--accent); margin: 0; line-height: 1; }
+        .stats-row { display: flex; justify-content: center; gap: 30px; margin-top: 20px; }
+        .stat-item span { display: block; font-size: 1.2rem; font-weight: 700; }
+        .stat-item small { opacity: 0.6; font-size: 0.7rem; }
 
-        .container { padding: 20px; max-width: 400px; margin: auto; }
+        /* INTERACTION AREA */
+        .actions { flex: 1; padding: 30px 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .tap-card { background: white; border: 2px solid #e2e8f0; border-radius: 20px; padding: 25px 10px; text-align: center; cursor: pointer; transition: 0.1s; }
+        .tap-card:active { transform: scale(0.9); background: #f1f5f9; border-color: var(--blue); }
+        .tap-card h3 { margin: 0; font-size: 1.5rem; color: var(--dark); }
+        .tap-card p { margin: 5px 0 0 0; color: #64748b; font-weight: 600; font-size: 0.8rem; }
 
-        /* SPEED BUTTONS */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .log-btn { background: var(--white); border: 2px solid #e2e8f0; padding: 25px 10px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
-        .log-btn:active { transform: scale(0.95); background: #dbeafe; }
-        .log-btn div { font-weight: 800; font-size: 1.2rem; color: var(--med-blue); }
-        .log-btn small { color: #64748b; font-weight: 600; }
-
-        .custom-log { background: var(--white); margin-top: 15px; padding: 20px; border-radius: 20px; border: 2px solid #e2e8f0; }
-        input { width: 100%; border: none; font-size: 1.2rem; font-weight: 700; text-align: center; outline: none; }
-        .btn-main { background: var(--med-accent); color: white; width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; margin-top: 10px; }
-
-        .history { text-align: left; margin-top: 30px; }
-        .history-item { background: white; padding: 12px 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--med-accent); }
+        .log-feed { margin-top: 20px; }
+        .log-entry { display: flex; justify-content: space-between; padding: 12px; background: white; border-radius: 12px; margin-bottom: 8px; border-left: 5px solid var(--blue); font-weight: 700; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .log-entry small { color: #94a3b8; font-weight: 400; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="day-label">Total Collection Today</div>
-        <div class="day-total">₹<span id="grand-total">0</span></div>
-        <div id="visit-count" style="font-size: 0.9rem; opacity: 0.8;">0 Patients Seen</div>
+    <div class="scoreboard">
+        <div class="label">Today's Earnings</div>
+        <div class="total-amt">₹<span id="display-total">0</span></div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <span id="display-count">0</span>
+                <small>PATIENTS</small>
+            </div>
+            <div class="stat-item">
+                <span id="display-avg">₹0</span>
+                <small>AVG / VISIT</small>
+            </div>
+        </div>
     </div>
 
-    <div class="container">
+    <div class="actions">
         <div class="grid">
-            <div class="log-btn" onclick="quickLog(500, 'Consultation')">
-                <small>CONSULT</small>
-                <div>₹500</div>
+            <div class="tap-card" onclick="logVisit(500, 'Consult')">
+                <h3>₹500</h3>
+                <p>CONSULTATION</p>
             </div>
-            <div class="log-btn" onclick="quickLog(200, 'Follow-up')">
-                <small>FOLLOW-UP</small>
-                <div>₹200</div>
+            <div class="tap-card" onclick="logVisit(200, 'Follow')">
+                <h3>₹200</h3>
+                <p>FOLLOW-UP</p>
+            </div>
+            <div class="tap-card" onclick="logVisit(1500, 'Proc')">
+                <h3>₹1500</h3>
+                <p>PROCEDURE</p>
+            </div>
+            <div class="tap-card" onclick="logVisit(0, 'Custom')">
+                <h3>+</h3>
+                <p>CUSTOM</p>
             </div>
         </div>
 
-        <div class="custom-log">
-            <input type="number" id="custom-amt" placeholder="Other Amount (₹)">
-            <button class="btn-main" onclick="customLog()">Log Procedure</button>
-        </div>
-
-        <div class="history">
-            <h3 style="font-size: 0.9rem; color: #64748b;">RECENT LOGS</h3>
-            <div id="log-list"></div>
-        </div>
+        <div class="log-feed" id="feed">
+            </div>
     </div>
 
     <script>
-        let total = 0;
-        let count = 0;
+        let grandTotal = 0;
+        let patientCount = 0;
 
-        function quickLog(amt, type) {
-            total += amt;
-            count++;
-            updateUI(amt, type);
+        function logVisit(amt, type) {
+            if (type === 'Custom') {
+                const custom = prompt("Enter custom amount:");
+                if (!custom) return;
+                amt = parseInt(custom);
+            }
+
+            grandTotal += amt;
+            patientCount++;
+            
+            // Update UI
+            document.getElementById('display-total').innerText = grandTotal.toLocaleString('en-IN');
+            document.getElementById('display-count').innerText = patientCount;
+            document.getElementById('display-avg').innerText = '₹' + Math.round(grandTotal / patientCount);
+
+            // Add to Feed
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            entry.innerHTML = `<span>${type} <small>${time}</small></span> <span>₹${amt}</span>`;
+            
+            const feed = document.getElementById('feed');
+            feed.prepend(entry);
         }
-
-        function customLog() {
-            const amt = parseInt(document.getElementById('custom-amt').value);
-            if (!amt) return;
-            total += amt;
-            count++;
-            updateUI(amt, 'Procedure');
-            document.getElementById('custom-amt').value = '';
-        }
-
-        function updateUI(amt, type) {
-            document.getElementById('grand-total').innerText = total.toLocaleString('en-IN');
-            document.
+    </script>
+</body>
+</html>
