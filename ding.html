@@ -14,17 +14,14 @@
         .logo span { color: var(--red); }
         .clinic-tag { font-size: 0.8rem; letter-spacing: 3px; color: var(--primary); font-weight: 800; text-transform: uppercase; }
         .main-card { background: var(--card); width: 90%; max-width: 420px; border-radius: 40px; padding: 40px 24px; text-align: center; margin: 20px auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
-        .token-circle { width: 160px; height: 160px; border: 6px solid var(--primary); border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(99, 102, 241, 0.3); }
+        .token-circle { width: 160px; height: 160px; border: 6px solid var(--primary); border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .token-val { font-size: 5rem; font-weight: 900; color: #fff; line-height: 1; }
-        .ledger-panel { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 20px; margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; }
-        .stat-val { font-size: 1.3rem; font-weight: 800; color: #fff; }
-        .audit-log { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 0.8rem; text-align: left; background: rgba(255,255,255,0.03); border-radius: 15px; overflow: hidden; }
-        .audit-log td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .btn { width: 100%; padding: 20px; border-radius: 24px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 15px; }
-        .btn-call { background: var(--primary); color: white; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4); }
+        .btn-call { background: var(--primary); color: white; }
         .btn-join { background: #fff; color: var(--dark); }
         .hidden { display: none !important; }
         #status-msg { color: var(--primary); font-weight: 800; margin-top: 20px; font-size: 1.1rem; }
+        .test-voice-btn { background: transparent; color: #64748b; font-size: 0.7rem; border: 1px solid #334155; padding: 5px 10px; border-radius: 10px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -35,20 +32,14 @@
     </div>
 
     <div id="doctor-view" class="main-card hidden">
-        <div style="font-size: 0.7rem; color: #22c55e; font-weight: 800;">● RECEPTION ACTIVE</div>
-        <div class="token-circle"><div class="token-val" id="doc-current">0</div><div style="font-size: 0.6rem; color: var(--primary);">NOW CALLING</div></div>
-        <div class="ledger-panel">
-            <div><div style="font-size:0.6rem; color:#94a3b8">REVENUE</div><div class="stat-val" id="total-revenue">₹0</div></div>
-            <div><div style="font-size:0.6rem; color:#94a3b8">LAST ISSUED</div><div class="stat-val" id="total-issued">0</div></div>
-        </div>
+        <div class="token-circle"><div class="token-val" id="doc-current">0</div></div>
         <button class="btn btn-call" onclick="callNext()">CALL NEXT PATIENT</button>
-        <table class="audit-log"><tbody id="audit-body"></tbody></table>
         <button class="btn" style="background:transparent; color:#64748b; font-size:0.8rem" onclick="resetDay()">End of Day Reset</button>
     </div>
 
     <div id="patient-join-view" class="main-card hidden">
         <h2 style="margin:0">Live Check-in</h2>
-        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 30px;">Secure your position in the queue.</p>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 30px;">Tap below to join the queue.</p>
         <button class="btn btn-join" onclick="joinQueue()">GET MY TOKEN</button>
     </div>
 
@@ -58,11 +49,11 @@
             <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 700;">YOUR TOKEN</span>
             <div style="font-size: 3.5rem; font-weight: 900; color: var(--primary);">#<span id="my-num">0</span></div>
         </div>
-        <div id="status-msg"></div>
+        <div id="status-msg">Waiting for updates...</div>
+        <button class="test-voice-btn" onclick="primeAndTest()">🔊 Tap to test voice alert</button>
     </div>
 
     <script>
-        // CONFIG - Replace with yours
         const firebaseConfig = { 
               apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
   authDomain: "fee-sync.firebaseapp.com",
@@ -70,17 +61,16 @@
   projectId: "fee-sync",
   storageBucket: "fee-sync.firebasestorage.app",
   messagingSenderId: "572245525299",
-  appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"    
+  appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
             
-            };
+           };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('live_queue/clinic_test');
-        const FEE = 500;
 
         const params = new URLSearchParams(window.location.search);
         const role = params.get('role');
         let myToken = parseInt(localStorage.getItem('feesync_token')) || 0;
-        let lastAlerted = 0;
+        let lastAlerted = -1;
 
         function updateView() {
             document.getElementById('doctor-view').classList.toggle('hidden', role !== 'doctor');
@@ -90,29 +80,43 @@
         }
         updateView();
 
+        // Voice Engine
+        function speak(t) {
+            window.speechSynthesis.cancel(); // Stop any overlapping speech
+            const u = new SpeechSynthesisUtterance(t);
+            u.rate = 0.9;
+            u.pitch = 1;
+            u.volume = 1;
+            window.speechSynthesis.speak(u);
+        }
+
+        function primeAndTest() {
+            speak("Voice alerts are active. You will be notified courteously.");
+        }
+
         db.on('value', (snap) => {
             const data = snap.val() || { current: 0, last_issued: 0 };
             const current = data.current || 0;
-            const issued = data.last_issued || 0;
 
-            if (current === 0 && issued === 0) { localStorage.removeItem('feesync_token'); myToken = 0; updateView(); }
+            if (data.current === 0 && data.last_issued === 0) {
+                localStorage.removeItem('feesync_token');
+                myToken = 0;
+                updateView();
+            }
 
             if (role === 'doctor') {
                 document.getElementById('doc-current').innerText = current;
-                document.getElementById('total-issued').innerText = issued;
-                document.getElementById('total-revenue').innerText = "₹" + (current * FEE);
-                const tbody = document.getElementById('audit-body');
-                tbody.innerHTML = count > 0 ? `<tr><td>Recently Seen</td><td>#${current}</td><td>₹${FEE}</td></tr>` : "";
             } else if (myToken > 0) {
                 document.getElementById('pat-current').innerText = current;
-                handlePatientAlerts(current);
+                handleAlerts(current);
             }
         });
 
         function joinQueue() {
+            // Prime voice immediately on first interaction
+            speak("Joining queue.");
             db.transaction((data) => {
                 data = data || { current: 0, last_issued: 0 };
-                // Ensure new token is at the BACK of the line, even if Dr. has already started
                 const next = Math.max(data.current, data.last_issued) + 1;
                 data.last_issued = next;
                 return data;
@@ -125,7 +129,7 @@
             });
         }
 
-        function handlePatientAlerts(now) {
+        function handleAlerts(now) {
             const m = document.getElementById('status-msg');
             const diff = myToken - now;
 
@@ -137,16 +141,13 @@
                 m.innerText = "DR. IS CALLING YOU";
                 speak("The doctor is calling you now. Please get up and go to meet the doctor. Have a nice consultation.");
                 lastAlerted = 0;
+            } else if (diff > 3) {
+                m.innerText = diff + " patients ahead of you";
             }
         }
 
         function callNext() { db.child('current').transaction(v => (v || 0) + 1); }
-        function resetDay() { if(confirm("Reset for today?")) db.set({ current: 0, last_issued: 0 }); }
-        function speak(t) { 
-            const u = new SpeechSynthesisUtterance(t); 
-            u.rate = 0.85; 
-            window.speechSynthesis.speak(u); 
-        }
+        function resetDay() { db.set({ current: 0, last_issued: 0 }); }
     </script>
 </body>
 </html>
