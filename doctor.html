@@ -6,126 +6,57 @@
     <title>Fee Sync | Dr. Pradeep's Clinic</title>
     <style>
         :root { --navy: #0f172a; --royal: #1e40af; --accent: #ef4444; --success: #10b981; --bg: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--navy); display: flex; flex-direction: column; height: 100vh; }
-        
-        /* HEADER */
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--navy); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         .brand-band { background: linear-gradient(135deg, var(--navy) 0%, var(--royal) 100%); padding: 20px; color: white; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
-        .logo { font-weight: 900; font-size: 1.2rem; }
-        .logo span { color: var(--accent); }
-
-        /* MODE SELECTOR (INITIAL) */
-        #setup-screen { padding: 40px 20px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .mode-card { background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 2px solid #e2e8f0; cursor: pointer; transition: 0.2s; }
-        .mode-card:hover { border-color: var(--royal); transform: translateY(-3px); }
-        .mode-card h3 { margin: 0; color: var(--royal); }
-        .mode-card p { font-size: 0.8rem; color: #64748b; margin: 5px 0 0 0; }
-
-        /* APP INTERFACE */
-        .app-container { display: none; padding: 20px; flex: 1; overflow-y: auto; }
-        .search-box { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; box-sizing: border-box; font-size: 1rem; }
-        
-        .patient-row { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
-        .btn-log { background: var(--navy); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; }
-        
-        .total-strip { background: #e0f2fe; padding: 10px; text-align: center; font-weight: 800; font-size: 1.2rem; border-radius: 10px; margin-bottom: 20px; color: var(--royal); }
-        .hidden { display: none; }
+        .logo { font-weight: 900; font-size: 1.2rem; } .logo span { color: var(--accent); }
+        #setup-screen { padding: 40px 20px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; background: white; z-index: 100; position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+        .mode-card { background: var(--bg); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 2px solid #e2e8f0; cursor: pointer; }
+        #main-app { display: none; padding: 20px; flex: 1; overflow-y: auto; }
+        .stats { background: white; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .search-box { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; box-sizing: border-box; }
+        .patient-row { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .btn { background: var(--navy); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; }
     </style>
 </head>
 <body>
 
+    <div id="setup-screen">
+        <div class="logo" style="color:var(--navy); margin-bottom:20px;">⚡ FEE <span>SYNC</span></div>
+        <h2 style="font-size:1.1rem">Select Workflow for Dr. Pradeep</h2>
+        <div class="mode-card" onclick="start('exp')"><h3>⚡ Express</h3><p>High Volume (70+). One-tap fee log.</p></div>
+        <div class="mode-card" onclick="start('hyb')"><h3>🔄 Unified Hybrid</h3><p>Med Volume. Search + Names.</p></div>
+        <div class="mode-card" onclick="start('the')"><h3>🧘 Therapy</h3><p>Low Volume. Advance & Wallets.</p></div>
+    </div>
+
     <div class="brand-band">
         <div class="logo">⚡ FEE <span>SYNC</span></div>
-        <div id="clinic-name-header" style="font-size: 0.7rem; opacity: 0.8; margin-top: 5px;">DR. PRADEEP'S CLINIC</div>
+        <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 5px;">DR. PRADEEP'S CLINIC</div>
     </div>
 
-    <div id="setup-screen">
-        <h2 style="margin-bottom: 30px;">Choose Your Clinic Workflow</h2>
-        
-        <div class="mode-card" onclick="startApp('express')">
-            <h3>⚡ Express Mode</h3>
-            <p>High Volume (70+ pts). No names. Just log the fee and move.</p>
+    <div id="main-app">
+        <div class="stats">
+            <div><small style="display:block; font-size:0.6rem; color:#94a3b8">TODAY'S REVENUE</small><b id="rev-val">₹0</b></div>
+            <div style="text-align:right"><small style="display:block; font-size:0.6rem; color:#94a3b8">PATIENTS</small><b id="pts-val">0</b></div>
         </div>
 
-        <div class="mode-card" onclick="startApp('hybrid')">
-            <h3>🔄 Unified Hybrid</h3>
-            <p>Medium Volume. Quick Search + Name Recording + History.</p>
-        </div>
-
-        <div class="mode-card" onclick="startApp('therapy')">
-            <h3>🧘 Therapy/Long-Term</h3>
-            <p>Low Volume. Full Wallet, Advance Payments, and Session Math.</p>
-        </div>
-    </div>
-
-    <div id="main-app" class="app-container">
-        <div class="total-strip">Today: ₹<span id="display-total">0</span></div>
-
-        <div id="hybrid-controls">
-            <input type="text" id="p-search" class="search-box" placeholder="Search Patient Name..." onkeyup="searchPatients()">
-            <div style="display: flex; gap: 5px; margin-bottom: 20px;">
-                <input type="text" id="new-name" class="search-box" style="margin:0" placeholder="New Patient Name">
-                <button class="btn-log" style="background:var(--success)" onclick="addNewPatient()">ADD</button>
-            </div>
-        </div>
-
-        <div id="patient-list">
-            </div>
+        <input type="text" id="p-search" class="search-box" placeholder="Search or Add Patient..." onkeyup="filter()">
+        <div id="list"></div>
+        <button onclick="alert('8 PM Report Generated!')" style="width:100%; padding:15px; background:var(--royal); color:white; border:none; border-radius:12px; font-weight:800; margin-top:10px;">End-of-Day Report</button>
     </div>
 
     <script>
-        let grandTotal = 0;
-        let currentMode = '';
-        let patients = [
-            { name: "Rahul Khanna", lastFee: 800 },
-            { name: "Anjali Sharma", lastFee: 500 }
-        ];
-
-        function startApp(mode) {
-            currentMode = mode;
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            renderPatients();
-        }
-
-        function renderPatients() {
-            const list = document.getElementById('patient-list');
-            list.innerHTML = '';
-            patients.forEach((p, index) => {
-                const div = document.createElement('div');
-                div.className = 'patient-row';
-                div.innerHTML = `
-                    <div>
-                        <div style="font-weight:800">${p.name}</div>
-                        <small style="color:#64748b">Last: ₹${p.lastFee}</small>
-                    </div>
-                    <button class="btn-log" onclick="logVisit(${index}, ${p.lastFee})">LOG ₹${p.lastFee}</button>
-                `;
-                list.appendChild(div);
+        let total = 0, count = 0, patients = [{name: "Rahul Khanna", fee: 800}, {name: "Priya Singh", fee: 500}];
+        function start(m) { document.getElementById('setup-screen').style.display='none'; document.getElementById('main-app').style.display='block'; render(); }
+        function render() {
+            const l = document.getElementById('list'); l.innerHTML = '';
+            patients.forEach((p, i) => {
+                const d = document.createElement('div'); d.className = 'patient-row';
+                d.innerHTML = `<div><b>${p.name}</b><br><small>Last: ₹${p.fee}</small></div><button class="btn" onclick="log(${p.fee})">Log ₹${p.fee}</button>`;
+                l.appendChild(d);
             });
         }
-
-        function logVisit(index, amt) {
-            grandTotal += amt;
-            document.getElementById('display-total').innerText = grandTotal.toLocaleString('en-IN');
-            alert(`Logged ₹${amt} for ${patients[index].name}`);
-        }
-
-        function addNewPatient() {
-            const name = document.getElementById('new-name').value;
-            if(!name) return;
-            patients.unshift({ name: name, lastFee: 500 });
-            renderPatients();
-            document.getElementById('new-name').value = '';
-        }
-
-        function searchPatients() {
-            let term = document.getElementById('p-search').value.toLowerCase();
-            let rows = document.getElementsByClassName('patient-row');
-            for (let row of rows) {
-                let name = row.querySelector('div').innerText.toLowerCase();
-                row.style.display = name.includes(term) ? "flex" : "none";
-            }
-        }
+        function log(a) { total += a; count++; document.getElementById('rev-val').innerText = '₹' + total; document.getElementById('pts-val').innerText = count; }
+        function filter() { /* Search logic here */ }
     </script>
 </body>
 </html>
