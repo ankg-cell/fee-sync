@@ -6,57 +6,186 @@
     <title>Fee Sync | Dr. Pradeep's Clinic</title>
     <style>
         :root { --navy: #0f172a; --royal: #1e40af; --accent: #ef4444; --success: #10b981; --bg: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--navy); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .brand-band { background: linear-gradient(135deg, var(--navy) 0%, var(--royal) 100%); padding: 20px; color: white; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
-        .logo { font-weight: 900; font-size: 1.2rem; } .logo span { color: var(--accent); }
-        #setup-screen { padding: 40px 20px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; background: white; z-index: 100; position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
-        .mode-card { background: var(--bg); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 2px solid #e2e8f0; cursor: pointer; }
-        #main-app { display: none; padding: 20px; flex: 1; overflow-y: auto; }
-        .stats { background: white; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; margin-bottom: 15px; border: 1px solid #e2e8f0; }
-        .search-box { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* IMPRESSIVE HEADER */
+        .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; }
+        .brand-left { display: flex; flex-direction: column; }
+        .fee-sync-tag { font-size: 0.6rem; font-weight: 900; letter-spacing: 1px; color: #94a3b8; }
+        .fee-sync-tag span { color: var(--accent); }
+        .dr-name { font-size: 1.2rem; font-weight: 900; color: var(--navy); margin-top: -2px; }
+        .mode-indicator { font-size: 0.6rem; background: var(--royal); color: white; padding: 3px 8px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
+
+        /* REVENUE BAR */
+        .revenue-bar { background: var(--navy); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .rev-item small { display: block; font-size: 0.6rem; opacity: 0.7; letter-spacing: 1px; }
+        .rev-item b { font-size: 1.8rem; font-weight: 900; }
+
+        /* SETUP SCREEN */
+        #setup-screen { position: fixed; inset: 0; background: white; z-index: 100; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; }
+        .welcome-msg { margin-bottom: 30px; }
+        .mode-card { background: #f1f5f9; padding: 25px; border-radius: 20px; margin-bottom: 15px; border: 2px solid transparent; transition: 0.2s; cursor: pointer; }
+        .mode-card:active { border-color: var(--royal); background: #e0f2fe; }
+        .mode-card h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--royal); }
+        .mode-card p { margin: 0; font-size: 0.8rem; color: #64748b; line-height: 1.4; }
+
+        /* CONTENT AREAS */
+        .content { flex: 1; padding: 20px; overflow-y: auto; display: none; }
+        .active-view { display: block; }
+
+        /* EXPRESS UI */
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .action-btn { background: white; border: 2px solid #e2e8f0; border-radius: 15px; padding: 20px 10px; text-align: center; cursor: pointer; }
+        .action-btn:active { background: #f8fafc; transform: translateY(2px); }
+        .action-btn h4 { margin: 0; font-size: 1.1rem; }
+        .action-btn small { font-size: 0.6rem; font-weight: 700; color: #94a3b8; }
+
+        /* HYBRID/THERAPY LIST */
+        .search-bar { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #cbd5e1; margin-bottom: 20px; font-size: 1rem; box-sizing: border-box; }
         .patient-row { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .btn { background: var(--navy); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; }
+        .p-details b { font-size: 1rem; display: block; }
+        .p-details span { font-size: 0.75rem; color: #64748b; }
+        .p-wallet { text-align: right; }
+        .p-wallet b { display: block; font-size: 0.9rem; }
+        .p-wallet small { font-size: 0.6rem; font-weight: 800; }
+        
+        .log-btn { background: var(--navy); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 800; font-size: 0.7rem; margin-top: 5px; cursor: pointer; }
+        
+        .footer-actions { padding: 20px; background: white; border-top: 1px solid #e2e8f0; }
+        .btn-report { width: 100%; background: var(--royal); color: white; padding: 15px; border: none; border-radius: 12px; font-weight: 800; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
     <div id="setup-screen">
-        <div class="logo" style="color:var(--navy); margin-bottom:20px;">⚡ FEE <span>SYNC</span></div>
-        <h2 style="font-size:1.1rem">Select Workflow for Dr. Pradeep</h2>
-        <div class="mode-card" onclick="start('exp')"><h3>⚡ Express</h3><p>High Volume (70+). One-tap fee log.</p></div>
-        <div class="mode-card" onclick="start('hyb')"><h3>🔄 Unified Hybrid</h3><p>Med Volume. Search + Names.</p></div>
-        <div class="mode-card" onclick="start('the')"><h3>🧘 Therapy</h3><p>Low Volume. Advance & Wallets.</p></div>
-    </div>
-
-    <div class="brand-band">
-        <div class="logo">⚡ FEE <span>SYNC</span></div>
-        <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 5px;">DR. PRADEEP'S CLINIC</div>
-    </div>
-
-    <div id="main-app">
-        <div class="stats">
-            <div><small style="display:block; font-size:0.6rem; color:#94a3b8">TODAY'S REVENUE</small><b id="rev-val">₹0</b></div>
-            <div style="text-align:right"><small style="display:block; font-size:0.6rem; color:#94a3b8">PATIENTS</small><b id="pts-val">0</b></div>
+        <div class="welcome-msg">
+            <div class="fee-sync-tag">⚡ FEE <span>SYNC</span></div>
+            <h1 style="font-size: 1.8rem; margin: 10px 0;">Welcome, Dr. Pradeep</h1>
+            <p style="color: #64748b;">Select your workflow for today's session.</p>
+        </div>
+        
+        <div class="mode-card" onclick="start('Express', 'exp')">
+            <h3>⚡ Express Mode</h3>
+            <p>High volume. One-tap fee logging. Best for 50+ General Consultations.</p>
         </div>
 
-        <input type="text" id="p-search" class="search-box" placeholder="Search or Add Patient..." onkeyup="filter()">
-        <div id="list"></div>
-        <button onclick="alert('8 PM Report Generated!')" style="width:100%; padding:15px; background:var(--royal); color:white; border:none; border-radius:12px; font-weight:800; margin-top:10px;">End-of-Day Report</button>
+        <div class="mode-card" onclick="start('Hybrid', 'hyb')">
+            <h3>🔄 Unified Hybrid</h3>
+            <p>Medium volume. Log by Patient Name. Keeps a history of visits.</p>
+        </div>
+
+        <div class="mode-card" onclick="start('Therapy', 'the')">
+            <h3>🧘 Therapy/Package</h3>
+            <p>Deep tracking. Advance payments, session deductions & wallets.</p>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="brand-left">
+            <div class="fee-sync-tag">⚡ FEE <span>SYNC</span></div>
+            <div class="dr-name">Dr. Pradeep's Clinic</div>
+        </div>
+        <div id="active-mode-tag" class="mode-indicator">Express</div>
+    </div>
+
+    <div class="revenue-bar">
+        <div class="rev-item">
+            <small>COLLECTED TODAY</small>
+            <b id="total-rev">₹0</b>
+        </div>
+        <div class="rev-item" style="text-align: right;">
+            <small>TOTAL PATIENTS</small>
+            <b id="total-pts">0</b>
+        </div>
+    </div>
+
+    <div id="view-exp" class="content">
+        <h4 style="margin-top: 0; color: #64748b; font-size: 0.7rem;">TAP TO LOG CONSULTATION</h4>
+        <div class="grid-3">
+            <div class="action-btn" onclick="log(500, 'Consult')"><h4>₹500</h4><small>General</small></div>
+            <div class="action-btn" onclick="log(200, 'Follow')"><h4>₹200</h4><small>Follow-up</small></div>
+            <div class="action-btn" onclick="log(1200, 'Proc')"><h4>₹1200</h4><small>Procedure</small></div>
+        </div>
+    </div>
+
+    <div id="view-hyb" class="content">
+        <input type="text" class="search-bar" placeholder="Find Patient..." onkeyup="filterPts()">
+        <div id="hyb-list">
+            </div>
+    </div>
+
+    <div id="view-the" class="content">
+        <input type="text" class="search-bar" placeholder="Search Wallet..." onkeyup="filterPts()">
+        <div id="the-list">
+            </div>
+    </div>
+
+    <div class="footer-actions">
+        <button class="btn-report" onclick="generateReport()">Generate 8:00 PM Report</button>
     </div>
 
     <script>
-        let total = 0, count = 0, patients = [{name: "Rahul Khanna", fee: 800}, {name: "Priya Singh", fee: 500}];
-        function start(m) { document.getElementById('setup-screen').style.display='none'; document.getElementById('main-app').style.display='block'; render(); }
-        function render() {
-            const l = document.getElementById('list'); l.innerHTML = '';
+        let total = 0, count = 0;
+        let patients = [
+            { name: "Rahul Khanna", wallet: 4500, type: "Ayurveda" },
+            { name: "Suman Lata", wallet: -500, type: "Physio" },
+            { name: "Amit Shah", wallet: 0, type: "Consult" }
+        ];
+
+        function start(label, id) {
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('active-mode-tag').innerText = label;
+            
+            // Show only the selected view
+            document.querySelectorAll('.content').forEach(v => v.classList.remove('active-view'));
+            document.getElementById('view-' + id).classList.add('active-view');
+            
+            renderLists();
+        }
+
+        function renderLists() {
+            const hList = document.getElementById('hyb-list');
+            const tList = document.getElementById('the-list');
+            hList.innerHTML = ''; tList.innerHTML = '';
+
             patients.forEach((p, i) => {
-                const d = document.createElement('div'); d.className = 'patient-row';
-                d.innerHTML = `<div><b>${p.name}</b><br><small>Last: ₹${p.fee}</small></div><button class="btn" onclick="log(${p.fee})">Log ₹${p.fee}</button>`;
-                l.appendChild(d);
+                // Hybrid Row
+                hList.innerHTML += `
+                    <div class="patient-row">
+                        <div class="p-details"><b>${p.name}</b><span>Last: ${p.type}</span></div>
+                        <button class="log-btn" onclick="log(500, '${p.name}')">LOG ₹500</button>
+                    </div>
+                `;
+                // Therapy Row
+                tList.innerHTML += `
+                    <div class="patient-row">
+                        <div class="p-details"><b>${p.name}</b><span>${p.type} Plan</span></div>
+                        <div class="p-wallet">
+                            <small>${p.wallet >= 0 ? 'CREDIT' : 'DUE'}</small>
+                            <b style="color:${p.wallet >= 0 ? 'var(--success)' : 'var(--accent)'}">₹${Math.abs(p.wallet)}</b>
+                            <button class="log-btn" style="background:var(--royal)" onclick="log(0, '${p.name}')">DEDUCT</button>
+                        </div>
+                    </div>
+                `;
             });
         }
-        function log(a) { total += a; count++; document.getElementById('rev-val').innerText = '₹' + total; document.getElementById('pts-val').innerText = count; }
-        function filter() { /* Search logic here */ }
+
+        function log(amt, source) {
+            total += amt;
+            count++;
+            document.getElementById('total-rev').innerText = '₹' + total.toLocaleString('en-IN');
+            document.getElementById('total-pts').innerText = count;
+            alert(`Log Successful: ${source}`);
+        }
+
+        function generateReport() {
+            const r = `DR. PRADEEP'S CLINIC\nEnd of Day Summary\n---\nTotal Revenue: ₹${total}\nTotal Patients: ${count}\n---\nVerified by Fee Sync ⚡`;
+            alert(r);
+        }
+
+        function filterPts() {
+            // Add search logic here
+        }
     </script>
 </body>
 </html>
