@@ -14,20 +14,20 @@
         .btn { background: var(--navy); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
         .btn-blue { background: var(--blue); }
         .hidden { display: none; }
-        #sync-status { font-size: 0.8rem; margin-bottom: 10px; color: #64748b; }
+        #sync-status { font-size: 0.8rem; margin-bottom: 10px; color: #64748b; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="setup">
         <h2>⚡ FEE SYNC</h2>
-        <p>Live Queue Test</p>
+        <p>Live Queue System</p>
         <button class="btn" onclick="init('doctor')">I AM RECEPTION</button>
         <button class="btn btn-blue" onclick="init('patient')">I AM PATIENT (#5)</button>
     </div>
 
     <div id="app" class="hidden">
-        <div id="sync-status">● Connecting...</div>
+        <div id="sync-status">● INITIALIZING...</div>
         <div class="card">
             <p id="role-label">Current Token</p>
             <div class="token" id="token-val">0</div>
@@ -36,51 +36,42 @@
     </div>
 
     <script>
-        // PASTE YOUR ACTUAL FIREBASE CONFIG HERE
+        // 2. PASTE YOUR ACTUAL FIREBASE CONFIG HERE
         const firebaseConfig = {
-            apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+    apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
   authDomain: "fee-sync.firebaseapp.com",
-            databaseURL: "
-https://fee-sync-default-rtdb.firebaseio.com/",
+  databaseURL: "https://fee-sync-default-rtdb.firebaseio.com",
   projectId: "fee-sync",
   storageBucket: "fee-sync.firebasestorage.app",
   messagingSenderId: "572245525299",
-  appId: "1:572245525299:web:facc4e8e7ba5dd0a913446" 
-                        };
+  appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
+        };
 
-        firebase.initializeApp(firebaseConfig);
-        
-        /* THE SAFECAR PATH: 
-           This points to 'live_queue', which is NOT your 'businesses' folder. 
-           This ensures zero conflict. */
-        const db = firebase.database().ref('live_queue/clinic_001');
-
-        let currentToken = 0;
-        const patientToken = 5; 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playDing() {
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-                if (navigator.vibrate) navigator.vibrate(200);
-            } catch(e) { console.log("Audio blocked"); }
+        // 3. START FIREBASE SAFELY
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("Firebase Initialized");
+        } catch (e) {
+            alert("Firebase Setup Error: " + e.message);
         }
 
+        const db = firebase.database().ref('live_queue/clinic_test');
+        let currentToken = 0;
+        const patientToken = 5; 
+        let audioCtx;
+
         function init(role) {
+            // Start Audio Context on first click (Browser Rule)
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
 
-            // Listening to the cloud
+            // 4. THE LISTENER
             db.on('value', (snapshot) => {
-                document.getElementById('sync-status').innerText = "● Live Sync Active";
-                document.getElementById('sync-status').style.color = "#22c55e";
+                const status = document.getElementById('sync-status');
+                status.innerText = "● LIVE SYNC ACTIVE";
+                status.style.color = "#22c55e";
                 
                 const data = snapshot.val();
                 if (data && data.current !== undefined) {
@@ -91,6 +82,9 @@ https://fee-sync-default-rtdb.firebaseio.com/",
                         if (role === 'patient') playDing();
                     }
                 }
+            }, (error) => {
+                alert("Permission Error: Check Realtime Database Rules!");
+                console.error(error);
             });
 
             if(role === 'doctor') {
@@ -98,16 +92,23 @@ https://fee-sync-default-rtdb.firebaseio.com/",
             }
         }
 
-function triggerNext() {
-    console.log("Attempting to update...");
-    db.set({ current: currentToken + 1 })
-    .then(() => {
-        alert("Success! Check your Firebase Console now.");
-    })
-    .catch((error) => {
-        alert("FAILED: " + error.message);
-    });
-}
+        function playDing() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            if (navigator.vibrate) navigator.vibrate(200);
+        }
+
+        function triggerNext() {
+            db.set({ current: currentToken + 1 })
+            .catch(err => alert("Write failed: " + err.message));
+        }
     </script>
 </body>
 </html>
