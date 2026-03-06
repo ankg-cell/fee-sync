@@ -5,86 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fee Sync | Clinical OS</title>
     <style>
-        :root { --dark: #0f172a; --accent: #ef4444; --blue: #2563eb; --green: #22c55e; }
-        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #f8fafc; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        :root { --clinic-blue: #0284c7; --hospital-bg: #f8fafc; --text-main: #0f172a; --text-muted: #64748b; --success: #22c55e; --red: #ef4444; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--hospital-bg); margin: 0; display: flex; flex-direction: column; height: 100vh; color: var(--text-main); }
         
-        /* BRANDED HEADER */
-        .brand-header { background: var(--dark); padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .logo { font-size: 1.4rem; font-weight: 900; color: white; letter-spacing: -1px; }
-        .logo span { color: var(--accent); }
-        .clinic-tag { color: #94a3b8; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; border: 1px solid #334155; padding: 4px 8px; border-radius: 6px; }
+        /* CLEAN CLINICAL HEADER */
+        .brand-header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        .logo { font-size: 1.2rem; font-weight: 800; color: var(--clinic-blue); letter-spacing: -0.5px; }
+        .logo span { color: var(--red); }
+        .status-pill { background: #f0fdf4; color: var(--success); font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 50px; border: 1px solid #dcfce7; }
 
-        /* LIVE EARNINGS PANEL */
-        .earnings-panel { background: var(--dark); color: white; padding: 30px 20px 40px 20px; text-align: center; border-radius: 0 0 30px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
-        .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; margin-bottom: 10px; }
-        .main-total { font-size: 3.5rem; font-weight: 900; color: white; margin: 0; }
+        /* REVENUE SCOREBOARD (LIGHT) */
+        .earnings-panel { background: white; padding: 30px 20px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+        .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
+        .main-total { font-size: 3.2rem; font-weight: 900; color: var(--text-main); margin: 0; letter-spacing: -1px; }
         
-        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255,255,255,0.1); margin-top: 25px; border-radius: 15px; overflow: hidden; }
-        .stat-card { background: var(--dark); padding: 15px; }
-        .stat-card small { display: block; font-size: 0.65rem; color: #94a3b8; margin-bottom: 5px; }
-        .stat-card span { font-size: 1.1rem; font-weight: 700; color: #f1f5f9; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .stat-card { background: var(--hospital-bg); padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9; }
+        .stat-card small { display: block; font-size: 0.6rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+        .stat-card span { font-size: 1rem; font-weight: 700; color: var(--clinic-blue); }
 
-        /* ACTION HUB */
-        .action-hub { flex: 1; padding: 25px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .section-title { font-size: 0.8rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+        /* THE TAP STATION */
+        .action-hub { flex: 1; padding: 25px 20px; overflow-y: auto; }
+        .section-header { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .section-header::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
 
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .speed-btn { background: white; border: 2.5px solid #e2e8f0; border-radius: 20px; padding: 20px 10px; text-align: center; cursor: pointer; transition: 0.1s; position: relative; }
-        .speed-btn:active { transform: scale(0.96); border-color: var(--blue); background: #eff6ff; }
-        .speed-btn h3 { margin: 0; font-size: 1.3rem; color: var(--dark); }
-        .speed-btn p { margin: 5px 0 0 0; font-size: 0.75rem; font-weight: 700; color: #64748b; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
+        .speed-btn { background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .speed-btn:active { transform: scale(0.95); background: #f0f9ff; border-color: var(--clinic-blue); }
+        .speed-btn h3 { margin: 0; font-size: 1.3rem; color: var(--clinic-blue); }
+        .speed-btn p { margin: 4px 0 0 0; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
         
-        .log-list { margin-top: 10px; }
-        .log-row { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); border-left: 4px solid var(--green); }
-        .log-row .time { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
-        .log-row .amt { font-weight: 800; color: var(--dark); }
+        /* ACTIVITY FEED */
+        .log-list { display: flex; flex-direction: column; gap: 10px; }
+        .log-row { background: white; padding: 12px 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f1f5f9; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .log-info { display: flex; flex-direction: column; }
+        .log-type { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+        .log-time { font-size: 0.7rem; color: var(--text-muted); }
+        .log-amt { font-weight: 800; color: var(--success); font-size: 0.95rem; }
     </style>
 </head>
 <body>
 
     <div class="brand-header">
         <div class="logo">⚡ FEE <span>SYNC</span></div>
-        <div class="clinic-tag">Clinical OS</div>
+        <div class="status-pill">● LIVE ENCRYPTION</div>
     </div>
 
     <div class="earnings-panel">
-        <div class="label">Total Collected (Direct-to-Bank)</div>
+        <div class="label">Today's Clinic Revenue</div>
         <div class="main-total">₹<span id="total-val">0</span></div>
         
-        <div class="grid-stats">
+        <div class="stats-grid">
             <div class="stat-card">
-                <small>PATIENTS SEEN</small>
+                <small>PATIENT COUNT</small>
                 <span id="count-val">0</span>
             </div>
             <div class="stat-card">
-                <small>AVG / VISIT</small>
+                <small>REVENUE / VISIT</small>
                 <span id="avg-val">₹0</span>
             </div>
         </div>
     </div>
 
     <div class="action-hub">
-        <div class="section-title">Quick Log Transaction</div>
+        <div class="section-header">QUICK LOG TRANSACTION</div>
         <div class="btn-grid">
-            <div class="speed-btn" onclick="logData(500, 'Consult')">
+            <div class="speed-btn" onclick="logData(500, 'Consultation')">
                 <h3>₹500</h3>
-                <p>CONSULTATION</p>
+                <p>Consult</p>
             </div>
-            <div class="speed-btn" onclick="logData(200, 'Follow')">
+            <div class="speed-btn" onclick="logData(200, 'Follow-up')">
                 <h3>₹200</h3>
-                <p>FOLLOW-UP</p>
+                <p>Follow-up</p>
             </div>
-            <div class="speed-btn" onclick="logData(1200, 'Proc')">
-                <h3>₹1200</h3>
-                <p>PROCEDURE</p>
+            <div class="speed-btn" onclick="logData(1500, 'Treatment')">
+                <h3>₹1500</h3>
+                <p>Procedure</p>
             </div>
-            <div class="speed-btn" onclick="logData(0, 'Custom')">
-                <h3>+</h3>
-                <p>CUSTOM AMT</p>
+            <div class="speed-btn" onclick="logData(0, 'Special')">
+                <h3 style="color:var(--text-muted)">+</h3>
+                <p>Custom</p>
             </div>
         </div>
 
-        <div class="section-title">Activity Feed</div>
+        <div class="section-header">TODAY'S ACTIVITY</div>
         <div id="feed-container" class="log-list">
             </div>
     </div>
@@ -94,8 +100,8 @@
         let count = 0;
 
         function logData(amt, type) {
-            if (type === 'Custom') {
-                const custom = prompt("Enter Procedure Amount (₹):");
+            if (type === 'Special') {
+                const custom = prompt("Enter Amount (₹):");
                 if (!custom) return;
                 amt = parseInt(custom);
             }
@@ -103,21 +109,21 @@
             total += amt;
             count++;
             
-            // Updates
+            // UI Updates
             document.getElementById('total-val').innerText = total.toLocaleString('en-IN');
             document.getElementById('count-val').innerText = count;
             document.getElementById('avg-val').innerText = '₹' + Math.round(total / count);
 
-            // Feed
+            // Feed Update
             const row = document.createElement('div');
             row.className = 'log-row';
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             row.innerHTML = `
-                <div>
-                    <div style="font-weight:700; font-size:0.9rem;">${type}</div>
-                    <div class="time">${time} • Successful</div>
+                <div class="log-info">
+                    <span class="log-type">${type}</span>
+                    <span class="log-time">${time} • UPI Verified</span>
                 </div>
-                <div class="amt">+ ₹${amt}</div>
+                <div class="log-amt">+ ₹${amt}</div>
             `;
             
             const container = document.getElementById('feed-container');
