@@ -2,83 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Sync | Dr. Pradeep's Clinic</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FeeSync Pro | Dr. Pradeep</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --brand: #4f46e5; --red: #ef4444; --slate: #0f172a; --bg: #f8fafc; --accent: #22c55e; }
-        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--slate); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        :root { --primary: #6366f1; --red: #ff4d4d; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
         
-        /* Brand Identity */
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 5px; color: var(--slate); margin-top: 20px; }
+        /* Header & Brand */
+        .header { width: 100%; padding: 40px 0 20px; text-align: center; background: linear-gradient(to bottom, #1e1b4b, var(--dark)); }
+        .logo { font-size: 2rem; font-weight: 900; letter-spacing: -2px; }
         .logo span { color: var(--red); }
-        .clinic-name { font-size: 1.1rem; font-weight: 800; color: var(--brand); margin-bottom: 30px; letter-spacing: 0.5px; }
+        .clinic-tag { font-size: 0.8rem; letter-spacing: 3px; color: var(--primary); font-weight: 800; margin-top: 5px; }
 
-        /* Card System */
-        .card { background: white; width: 100%; max-width: 360px; border-radius: 35px; padding: 45px 25px; box-shadow: 0 25px 60px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.03); position: relative; text-align: center; }
-        .status-dot { position: absolute; top: 25px; right: 25px; width: 12px; height: 12px; background: #cbd5e1; border-radius: 50%; transition: 0.3s; }
-        .status-online { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        /* Modern Display */
+        .main-card { background: var(--card); width: 90%; max-width: 400px; border-radius: 40px; padding: 50px 20px; text-align: center; margin-top: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.05); }
+        .status-badge { display: inline-block; padding: 6px 16px; border-radius: 100px; background: rgba(99, 102, 241, 0.1); color: var(--primary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 20px; border: 1px solid var(--primary); }
+        .token-circle { width: 180px; height: 180px; border: 8px solid var(--primary); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 5.5rem; font-weight: 900; text-shadow: 0 0 30px var(--primary); }
+        
+        /* Ledger Integration Panel */
+        .ledger-summary { background: rgba(0,0,0,0.2); margin: 20px -20px -50px; padding: 30px 20px; border-radius: 0 0 40px 40px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { text-align: left; padding: 10px; }
+        .stat-label { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; }
+        .stat-val { font-size: 1.1rem; font-weight: 700; color: #fff; }
 
-        /* Queue Typography */
-        h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2.5px; color: #94a3b8; margin-bottom: 5px; font-weight: 700; }
-        .token-num { font-size: 8rem; font-weight: 900; color: var(--slate); line-height: 1; margin: 20px 0; font-variant-numeric: tabular-nums; text-shadow: 2px 2px 0px #f1f5f9; }
-        .patient-badge { background: #fef2f2; border: 1px solid #fee2e2; padding: 10px 22px; border-radius: 100px; font-weight: 800; font-size: 1rem; display: inline-block; margin-bottom: 25px; color: var(--red); }
-
-        /* Professional Buttons */
-        .btn { width: 100%; max-width: 360px; padding: 22px; border-radius: 22px; border: none; font-size: 1.15rem; font-weight: 800; cursor: pointer; transition: all 0.2s; margin-top: 15px; -webkit-tap-highlight-color: transparent; }
-        .btn-primary { background: var(--slate); color: white; box-shadow: 0 15px 30px rgba(15, 23, 42, 0.2); }
-        .btn-primary:active { transform: scale(0.95); background: #000; }
-        .btn-outline { background: white; border: 2.5px solid #e2e8f0; color: #64748b; }
-        .btn-reset { background: transparent; color: #94a3b8; font-size: 0.85rem; margin-top: 60px; text-decoration: underline; font-weight: 600; cursor: pointer; border: none; }
-
-        .hidden { display: none; }
-        #announcement-text { color: var(--red); font-weight: 800; font-size: 1.2rem; min-height: 1.5em; margin-top: 20px; letter-spacing: -0.5px; }
+        /* Action Buttons */
+        .btn { width: 90%; max-width: 400px; padding: 22px; border-radius: 20px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-call { background: var(--primary); color: white; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); }
+        .btn-join { background: #fff; color: var(--dark); }
+        
+        .hidden { display: none !important; }
+        #announcement { color: var(--red); font-weight: 700; margin-top: 20px; font-size: 0.9rem; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div class="logo">FEE<span>SYNC</span></div>
-    <div class="clinic-name">DR. PRADEEP'S CLINIC</div>
-
-    <div id="setup-view">
-        <div class="card">
-            <h2>System Login</h2>
-            <button class="btn btn-primary" onclick="launch('doctor')">Clinic Dashboard</button>
-            <div style="margin: 30px 0; font-size: 0.8rem; color: #cbd5e1; font-weight: 900;">OR</div>
-            <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 12px; font-weight: 600;">Patient Token Number:</p>
-            <input type="number" id="token-input" value="5" style="width: 80px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 15px; text-align: center; font-size: 1.3rem; font-weight: 800; margin-bottom: 15px; outline-color: var(--brand);">
-            <button class="btn btn-outline" onclick="launch('patient')">Join as Patient</button>
-        </div>
+    <div class="header">
+        <div class="logo">FEE<span>SYNC</span></div>
+        <div class="clinic-tag">DR. PRADEEP'S CLINIC</div>
     </div>
 
-    <div id="app-view" class="hidden">
-        <div class="card">
-            <div id="connection-dot" class="status-dot"></div>
-            <div id="patient-header" class="hidden">
-                <div class="patient-badge">YOUR TOKEN: #<span id="my-token-display">0</span></div>
+    <div id="join-view" class="main-card">
+        <div class="status-badge">Remote Booking</div>
+        <h3>Check-in from Home</h3>
+        <p style="color: #94a3b8; font-size: 0.9rem;">Join the live queue and get notified when it's your turn.</p>
+        <button class="btn btn-join" onclick="registerPatient()">GET MY TOKEN</button>
+    </div>
+
+    <div id="dashboard" class="main-card hidden">
+        <div id="role-tag" class="status-badge">Live Queue</div>
+        <div class="token-circle" id="token-val">0</div>
+        <div id="my-token-info" class="hidden">
+            <span style="color: #94a3b8">Your Entry:</span> <b id="assigned-val" style="color: var(--primary)">#0</b>
+        </div>
+        <div id="announcement"></div>
+
+        <div id="doctor-ledger" class="ledger-summary hidden">
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Today's Revenue</div>
+                    <div class="stat-val" id="total-cash">₹0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Patients Seen</div>
+                    <div class="stat-val" id="patient-count">0</div>
+                </div>
             </div>
-            <h2>Now Calling</h2>
-            <div class="token-num" id="live-token-val">0</div>
-            <div id="announcement-text"></div>
-        </div>
-
-        <div id="doctor-zone" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-            <button class="btn btn-primary" onclick="callNext()">Call Next Patient</button>
-            <button class="btn btn-reset" onclick="triggerReset()">End of Day: Clear Queue</button>
-        </div>
-
-        <div id="patient-zone" class="hidden" style="margin-top: 25px; text-align: center; max-width: 300px;">
-            <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5; font-weight: 500;">
-                <span style="color: var(--accent)">●</span> Voice assistance active.<br>Please keep your media volume up.
-            </p>
+            <button class="btn btn-call" onclick="processNext()">CALL NEXT PATIENT</button>
         </div>
     </div>
 
     <script>
-        // 1. DATABASE CONFIG (Replace with your actual keys)
-        const firebaseConfig = {
-   apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+        // CONFIG (Replace with yours)
+        const firebaseConfig = { 
+              apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
 
   authDomain: "fee-sync.firebaseapp.com",
 
@@ -91,101 +90,71 @@
   messagingSenderId: "572245525299",
 
   appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
+        
+        
+        
+        
         };
-
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('live_queue/clinic_test');
+        const db = firebase.database().ref('businesses/dr_pradeep');
 
-        let currentActiveToken = 0;
-        let myAssignedToken = 0;
-        let userRole = '';
-        let audioCtx;
+        let state = { current: 0, lastIssued: 0, revenue: 0, role: '', myNum: 0 };
+        const CONSULT_FEE = 500;
 
-        // 2. VOICE & SOUND ENGINE
-        function playAlert(freq, type) {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.6);
-            if (navigator.vibrate) navigator.vibrate(type === 'urgent' ? 1000 : 200);
-        }
-
-        function speakText(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.85; // Natural pace
-                utterance.pitch = 1.1; // Friendly tone
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        // 3. APP LOGIC
-        function launch(role) {
-            userRole = role;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            
-            document.getElementById('setup-view').classList.add('hidden');
-            document.getElementById('app-view').classList.remove('hidden');
-
-            if (role === 'patient') {
-                myAssignedToken = parseInt(document.getElementById('token-input').value);
-                document.getElementById('patient-header').classList.remove('hidden');
-                document.getElementById('my-token-display').innerText = myAssignedToken;
-                document.getElementById('patient-zone').classList.remove('hidden');
-            } else {
-                document.getElementById('doctor-zone').classList.remove('hidden');
-                document.getElementById('doctor-zone').style.display = 'flex';
-            }
-
-            db.on('value', (snap) => {
-                document.getElementById('connection-dot').classList.add('status-online');
-                const data = snap.val();
-                if (data && data.current !== undefined) {
-                    const cloudVal = data.current;
-                    if (cloudVal === 0 || cloudVal > currentActiveToken) {
-                        currentActiveToken = cloudVal;
-                        document.getElementById('live-token-val').innerText = currentActiveToken;
-                        if (userRole === 'patient') runPatientChecks(currentActiveToken);
-                    }
+        // Remote Registration Logic
+        function registerPatient() {
+            db.child('queue').transaction((q) => {
+                if (q) {
+                    q.lastIssued = (q.lastIssued || 0) + 1;
+                    state.myNum = q.lastIssued;
+                }
+                return q;
+            }, (err, committed, snap) => {
+                if (committed) {
+                    initApp('patient');
                 }
             });
         }
 
-        function runPatientChecks(now) {
-            const display = document.getElementById('announcement-text');
-            
-            if (now === (myAssignedToken - 3)) {
-                display.innerText = "3 AHEAD • GET READY";
-                playAlert(440, 'normal');
-                speakText("Three patients remaining. Please get ready.");
-            } 
-            else if (now === (myAssignedToken - 1)) {
-                display.innerText = "YOU ARE NEXT • MOVE NOW";
-                playAlert(880, 'normal');
-                speakText("You are next in line. Please get up and move towards the cabin now.");
-                alert("DR. PRADEEP'S CLINIC: You are NEXT! Please move to the cabin.");
-            }
-            else if (now === myAssignedToken) {
-                display.innerText = "IT IS YOUR TURN!";
-                playAlert(1200, 'urgent');
-                speakText("It is your turn. Please enter the doctors room.");
+        function initApp(userRole) {
+            state.role = userRole;
+            document.getElementById('join-view').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+
+            if (userRole === 'doctor') {
+                document.getElementById('doctor-ledger').classList.remove('hidden');
+                document.getElementById('role-tag').innerText = "Reception Dashboard";
             } else {
-                display.innerText = "";
+                document.getElementById('my-token-info').classList.remove('hidden');
+                document.getElementById('assigned-val').innerText = "#" + state.myNum;
             }
+
+            // Sync Data
+            db.child('queue').on('value', (s) => {
+                const data = s.val();
+                state.current = data.current;
+                document.getElementById('token-val').innerText = state.current;
+                document.getElementById('total-cash').innerText = "₹" + (state.current * CONSULT_FEE);
+                document.getElementById('patient-count').innerText = state.current;
+                
+                if(state.role === 'patient') checkNotifications();
+            });
         }
 
-        function callNext() {
-            db.set({ current: currentActiveToken + 1 });
+        function processNext() {
+            // LEDGER + QUEUE INTEGRATION
+            db.child('queue/current').set(state.current + 1);
+            // Here you would also push to the 'ledger' node in Firebase
         }
 
-        function triggerReset() {
-            if (confirm("End of Day? This resets Dr. Pradeep's queue to 0.")) {
-                db.set({ current: 0 }).then(() => location.reload());
+        function checkNotifications() {
+            const diff = state.myNum - state.current;
+            const msg = document.getElementById('announcement');
+            if (diff === 1) {
+                msg.innerText = "YOU ARE NEXT! MOVE TO CABIN.";
+                // speak logic here...
+            } else if (diff === 0) {
+                msg.innerText = "IT IS YOUR TURN!";
             }
         }
     </script>
