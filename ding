@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Sync | The Ding Test</title>
+    <style>
+        :root { --blue: #0ea5e9; --navy: #0f172a; --bg: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); text-align: center; padding: 20px; color: var(--navy); }
+        .card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .token { font-size: 5rem; font-weight: 900; color: var(--blue); margin: 10px 0; }
+        .btn { background: var(--navy); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-blue { background: var(--blue); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="setup">
+        <h2>⚡ FEE SYNC</h2>
+        <p>Select device role for the test:</p>
+        <button class="btn" onclick="init('doctor')">I AM RECEPTION</button>
+        <button class="btn btn-blue" onclick="init('patient')">I AM PATIENT (#5)</button>
+    </div>
+
+    <div id="app" class="hidden">
+        <h3 id="role-title"></h3>
+        <div class="card">
+            <p id="status-label">Now Calling</p>
+            <div class="token" id="token-val">0</div>
+            <p id="instruction"></p>
+        </div>
+        <button id="action-btn" class="btn btn-blue hidden" onclick="triggerNext()">CALL NEXT PATIENT</button>
+    </div>
+
+    <script>
+        let currentToken = 0;
+        const patientToken = 5; // Suppose this phone is Token #5
+        
+        // The "Ding" - a high-pitched beep
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playDing() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High A note
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+            if (navigator.vibrate) navigator.vibrate(200); // Vibrate for 200ms
+        }
+
+        function init(role) {
+            document.getElementById('setup').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            
+            if(role === 'doctor') {
+                document.getElementById('role-title').innerText = "Reception Dashboard";
+                document.getElementById('action-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('role-title').innerText = "Your Token: #5";
+                document.getElementById('status-label').innerText = "Current Queue";
+                document.getElementById('instruction').innerText = "We will 'Ding' you when your turn is near.";
+                // Listen for changes (Simulated for this demo)
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'sync_token') {
+                        let newVal = parseInt(e.newValue);
+                        document.getElementById('token-val').innerText = newVal;
+                        if(newVal === (patientToken - 1)) {
+                            playDing();
+                            alert("You are NEXT! Please head to the cabin.");
+                        } else {
+                            playDing(); // Small ding for every movement
+                        }
+                    }
+                });
+            }
+        }
+
+        function triggerNext() {
+            currentToken++;
+            document.getElementById('token-val').innerText = currentToken;
+            localStorage.setItem('sync_token', currentToken);
+        }
+    </script>
+</body>
+</html>
