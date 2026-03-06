@@ -2,38 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FeeSync Pro | Dr. Pradeep</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --primary: #6366f1; --red: #ff4d4d; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* Branding */
         .header { width: 100%; padding: 30px 0; text-align: center; background: linear-gradient(180deg, #1e1b4b 0%, var(--dark) 100%); }
         .logo { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; }
         .logo span { color: var(--red); }
         .clinic-tag { font-size: 0.75rem; letter-spacing: 3px; color: var(--primary); font-weight: 800; text-transform: uppercase; }
 
-        /* The Main Display */
         .main-card { background: var(--card); width: 90%; max-width: 400px; border-radius: 40px; padding: 40px 20px; text-align: center; margin-top: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
-        .token-display { font-size: 6rem; font-weight: 900; color: #fff; margin: 20px 0; text-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
+        .token-display { font-size: 6rem; font-weight: 900; color: #fff; margin: 20px 0; }
         
-        /* Doctor's Ledger Panel */
+        /* Dashboard Stats */
         .ledger-box { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 20px; margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; }
         .stat-label { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; }
         .stat-val { font-size: 1.2rem; font-weight: 800; color: #fff; }
 
-        /* Controls */
-        .btn { width: 90%; max-width: 400px; padding: 20px; border-radius: 20px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.2s; }
-        .btn-call { background: var(--primary); color: white; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); }
-        .btn-call:active { transform: scale(0.95); }
-        .btn-reset { background: transparent; color: #64748b; font-size: 0.8rem; text-decoration: underline; margin-top: 30px; }
-
+        .btn { width: 100%; padding: 20px; border-radius: 20px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+        
         .hidden { display: none !important; }
-        #msg { color: var(--red); font-weight: 700; font-size: 0.9rem; margin-top: 15px; height: 1.2em; }
-        .sync-indicator { font-size: 0.6rem; color: #22c55e; margin-bottom: 10px; font-weight: 700; }
+        #msg { color: var(--red); font-weight: 700; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -43,42 +38,44 @@
         <div class="clinic-tag">DR. PRADEEP'S CLINIC</div>
     </div>
 
-    <div class="main-card">
-        <div id="sync-status" class="sync-indicator">● LIVE SYNC ACTIVE</div>
-        <div id="role-label" style="text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; color: #94a3b8;">Current Calling</div>
+    <div id="patient-join-view" class="main-card hidden">
+        <h2>Join Queue</h2>
+        <p id="timer-status" style="color: #94a3b8;">Checking booking window...</p>
+        <button id="join-btn" class="btn btn-disabled" disabled onclick="requestToken()">JOIN NOW</button>
+    </div>
+
+    <div id="doctor-dashboard" class="main-card hidden">
+        <div style="font-size: 0.7rem; letter-spacing: 2px; color: #94a3b8;">NOW CALLING</div>
+        <div class="token-display" id="doc-token">0</div>
         
-        <div class="token-display" id="main-token">0</div>
-        
+        <div class="ledger-box">
+            <div>
+                <div class="stat-label">Daily Revenue</div>
+                <div class="stat-val" id="total-revenue">₹0</div>
+            </div>
+            <div>
+                <div class="stat-label">Tokens Issued</div>
+                <div class="stat-val" id="issued-count">0</div>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="callNext()">CALL NEXT PATIENT</button>
+        <button class="btn" style="background:transparent; color:#64748b; text-decoration:underline" onclick="resetDay()">Reset for Tomorrow</button>
+    </div>
+
+    <div id="patient-status-view" class="main-card hidden">
+        <div style="font-size: 0.7rem; letter-spacing: 2px; color: #94a3b8;">NOW CALLING</div>
+        <div class="token-display" id="pat-token">0</div>
+        <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 20px; border: 1px solid var(--primary);">
+            <span style="color: #94a3b8; font-size: 0.8rem;">Your Token Number</span>
+            <div style="font-size: 2.5rem; font-weight: 800; color: var(--primary);">#<span id="my-num">0</span></div>
+        </div>
         <div id="msg"></div>
-
-        <div id="doctor-controls" class="hidden">
-            <div class="ledger-box">
-                <div>
-                    <div class="stat-label">Daily Cash</div>
-                    <div class="stat-val" id="total-revenue">₹0</div>
-                </div>
-                <div>
-                    <div class="stat-label">Total Visits</div>
-                    <div class="stat-val" id="visit-count">0</div>
-                </div>
-            </div>
-            <button class="btn btn-call" onclick="callNext()">CALL NEXT PATIENT</button>
-            <button class="btn btn-reset" onclick="resetQueue()">End of Day Reset</button>
-        </div>
-
-        <div id="patient-controls" class="hidden">
-            <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 20px; border: 1px solid var(--primary);">
-                <span style="color: #94a3b8; font-size: 0.8rem;">Your Token Number</span>
-                <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">#<span id="my-number">0</span></div>
-            </div>
-            <p style="font-size: 0.75rem; color: #64748b; margin-top: 20px;">The phone will speak when your turn is near.</p>
-        </div>
     </div>
 
     <script>
         // 1. CONFIG
         const firebaseConfig = {
-  apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+              apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
   authDomain: "fee-sync.firebaseapp.com",
   databaseURL: "https://fee-sync-default-rtdb.firebaseio.com",
   projectId: "fee-sync",
@@ -89,83 +86,80 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('live_queue/clinic_test');
         
-        const CONSULT_FEE = 500; // Dr. Pradeep's Fee
-        let currentToken = 0;
-        let myToken = 0;
-        let role = '';
+        const OPEN_TIME = 10; // 10:00 AM
+        const CLOSE_TIME = 20; // 8:00 PM
+        const FEE = 500;
 
-        // 2. AUTO-ROLE DETECTION (Using URL parameters)
-        // Link for Dr: ding.html?role=doctor
-        // Link for Patient: ding.html?token=5
         const urlParams = new URLSearchParams(window.location.search);
-        role = urlParams.get('role') === 'doctor' ? 'doctor' : 'patient';
-        myToken = parseInt(urlParams.get('token')) || 0;
+        const role = urlParams.get('role') || 'patient';
+        let myNum = localStorage.getItem('myToken') || 0;
 
-        // 3. UI INITIALIZATION
+        // 2. ROUTING
         if (role === 'doctor') {
-            document.getElementById('doctor-controls').classList.remove('hidden');
+            document.getElementById('doctor-dashboard').classList.remove('hidden');
+        } else if (myNum > 0) {
+            showPatientStatus();
         } else {
-            document.getElementById('patient-controls').classList.remove('hidden');
-            document.getElementById('my-number').innerText = myToken;
+            document.getElementById('patient-join-view').classList.remove('hidden');
+            checkWindow();
         }
 
-        // 4. THE SYNC ENGINE (With Budget Guard)
-        db.on('value', (snap) => {
-            const data = snap.val();
-            if (data) {
-                const newVal = data.current || 0;
-                
-                // READ OPTIMIZATION: Only update if changed
-                if (newVal === 0 || newVal > currentToken) {
-                    currentToken = newVal;
-                    updateUI(currentToken);
+        // 3. FLASH SALE TIMER
+        function checkWindow() {
+            const hour = new Date().getHours();
+            const btn = document.getElementById('join-btn');
+            const status = document.getElementById('timer-status');
+
+            if (hour >= OPEN_TIME && hour < CLOSE_TIME) {
+                btn.disabled = false;
+                btn.className = "btn btn-primary";
+                status.innerText = "Booking is OPEN!";
+            } else {
+                status.innerText = "Booking opens at " + OPEN_TIME + ":00 AM";
+            }
+        }
+
+        // 4. REMOTE TOKEN REQUEST (The Flash Sale)
+        function requestToken() {
+            db.child('last_issued').transaction((current) => {
+                return (current || 0) + 1;
+            }, (error, committed, snapshot) => {
+                if (committed) {
+                    myNum = snapshot.val();
+                    localStorage.setItem('myToken', myNum);
+                    location.reload();
                 }
+            });
+        }
+
+        // 5. LIVE SYNC
+        db.on('value', (snap) => {
+            const data = snap.val() || {};
+            const current = data.current || 0;
+            const issued = data.last_issued || 0;
+
+            if (role === 'doctor') {
+                document.getElementById('doc-token').innerText = current;
+                document.getElementById('issued-count').innerText = issued;
+                document.getElementById('total-revenue').innerText = "₹" + (current * FEE);
+            } else {
+                document.getElementById('pat-token').innerText = current;
+                if (myNum > 0) updatePatientAlerts(current);
             }
         });
 
-        function updateUI(val) {
-            document.getElementById('main-token').innerText = val;
-            
-            if (role === 'doctor') {
-                // Ledger Logic
-                document.getElementById('visit-count').innerText = val;
-                document.getElementById('total-revenue').innerText = "₹" + (val * CONSULT_FEE);
-            } else {
-                checkPatientTurn(val);
-            }
-        }
-
-        function checkPatientTurn(now) {
-            const msg = document.getElementById('msg');
-            const diff = myToken - now;
-
-            if (diff === 3) {
-                msg.innerText = "3 PATIENTS AHEAD - GET READY";
-                speak("Three patients remaining. Please get ready.");
-            } else if (diff === 1) {
-                msg.innerText = "YOU ARE NEXT! MOVE TO CABIN";
-                speak("You are next in line. Please move to the cabin now.");
-                if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-            } else if (diff === 0) {
-                msg.innerText = "IT IS YOUR TURN!";
-                speak("It is your turn. Please enter the doctor's room.");
-            }
+        function showPatientStatus() {
+            document.getElementById('patient-join-view').classList.add('hidden');
+            document.getElementById('patient-status-view').classList.remove('hidden');
+            document.getElementById('my-num').innerText = myNum;
         }
 
         function callNext() {
-            db.child('current').set(currentToken + 1);
+            db.child('current').transaction(c => (c || 0) + 1);
         }
 
-        function resetQueue() {
-            if(confirm("Reset all data for a new day?")) {
-                db.set({ current: 0 });
-            }
-        }
-
-        function speak(text) {
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.rate = 0.9;
-            window.speechSynthesis.speak(msg);
+        function resetDay() {
+            if(confirm("Clear ledger and queue?")) db.set({ current: 0, last_issued: 0 });
         }
     </script>
 </body>
