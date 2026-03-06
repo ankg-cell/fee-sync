@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Sync | Clinical OS</title>
+    <title>Fee Sync | Dr. Pradeep's Clinic</title>
     <style>
         :root { --navy: #0f172a; --royal: #1e40af; --accent: #ef4444; --success: #22c55e; --bg: #f8fafc; }
         body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; color: var(--navy); }
@@ -11,16 +11,19 @@
         /* THE IMPRESSIVE BRAND BAND */
         .brand-band { 
             background: linear-gradient(135deg, var(--navy) 0%, var(--royal) 100%); 
-            padding: 30px 20px 60px 20px; 
+            padding: 25px 20px 65px 20px; 
             text-align: center; 
             color: white;
             border-bottom-left-radius: 40px;
             border-bottom-right-radius: 40px;
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+            position: relative;
         }
         
-        .logo { font-size: 1.4rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 25px; display: block; }
+        .logo-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logo { font-size: 1.1rem; font-weight: 900; letter-spacing: -1px; }
         .logo span { color: var(--accent); }
+        .clinic-name { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 8px; letter-spacing: 0.5px; }
 
         .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; font-weight: 700; margin-bottom: 8px; }
         .main-total { font-size: 3.5rem; font-weight: 900; margin: 0; letter-spacing: -2px; }
@@ -30,35 +33,37 @@
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             gap: 15px; 
-            margin: -30px 20px 0 20px; 
+            margin: -35px 20px 0 20px; 
+            z-index: 10;
         }
         .stat-pill { 
             background: white; 
-            padding: 15px; 
+            padding: 18px; 
             border-radius: 20px; 
             text-align: center; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06);
             border: 1px solid #f1f5f9;
         }
         .stat-pill small { display: block; font-size: 0.6rem; color: #64748b; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
-        .stat-pill span { font-size: 1.1rem; font-weight: 800; color: var(--navy); }
+        .stat-pill span { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
 
         /* INTERACTION HUB */
         .action-hub { flex: 1; padding: 40px 20px; overflow-y: auto; }
-        .section-tag { font-size: 0.75rem; font-weight: 800; color: #94a3b8; margin-bottom: 15px; letter-spacing: 1px; }
+        .section-tag { font-size: 0.75rem; font-weight: 800; color: #94a3b8; margin-bottom: 15px; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .section-tag::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
 
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 40px; }
         .tap-card { 
             background: white; 
-            border-radius: 20px; 
+            border-radius: 22px; 
             padding: 25px 10px; 
             text-align: center; 
             cursor: pointer; 
-            transition: all 0.2s; 
+            transition: all 0.15s ease; 
             border: 1px solid #e2e8f0;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        .tap-card:active { transform: scale(0.92); background: #f1f5f9; border-color: var(--royal); }
+        .tap-card:active { transform: scale(0.94); background: #f8fafc; border-color: var(--royal); box-shadow: none; }
         .tap-card h3 { margin: 0; font-size: 1.5rem; color: var(--navy); font-weight: 900; }
         .tap-card p { margin: 5px 0 0 0; font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
         
@@ -66,25 +71,31 @@
         .feed-entry { 
             background: white; 
             padding: 15px; 
-            border-radius: 15px; 
+            border-radius: 18px; 
             margin-bottom: 10px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center;
             border-left: 5px solid var(--success);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            animation: popIn 0.3s ease-out;
         }
+        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
         .entry-meta { display: flex; flex-direction: column; }
-        .entry-meta b { font-size: 0.9rem; }
+        .entry-meta b { font-size: 0.95rem; }
         .entry-meta small { color: #94a3b8; font-size: 0.7rem; font-weight: 500; }
-        .entry-amt { font-weight: 900; color: var(--success); }
+        .entry-amt { font-weight: 900; color: var(--success); font-size: 1rem; }
     </style>
 </head>
 <body>
 
     <div class="brand-band">
-        <div class="logo">⚡ FEE <span>SYNC</span></div>
-        <div class="label">Clinic Revenue Today</div>
+        <div class="logo-row">
+            <div class="logo">⚡ FEE <span>SYNC</span></div>
+            <div class="clinic-name">Dr. Pradeep's Clinic</div>
+        </div>
+        <div class="label">Total Collection Today</div>
         <div class="main-total">₹<span id="total-val">0</span></div>
     </div>
 
@@ -110,13 +121,13 @@
                 <h3>₹200</h3>
                 <p>Follow-up</p>
             </div>
-            <div class="tap-card" onclick="logVisit(1200, 'Procedure')">
-                <h3>₹1200</h3>
+            <div class="tap-card" onclick="logVisit(1500, 'Procedure')">
+                <h3>₹1500</h3>
                 <p>Procedure</p>
             </div>
-            <div class="tap-card" onclick="logVisit(0, 'Manual')">
+            <div class="tap-card" onclick="logVisit(0, 'Special')">
                 <h3 style="color:#94a3b8">+</h3>
-                <p>Custom</p>
+                <p>Add Custom</p>
             </div>
         </div>
 
@@ -130,9 +141,9 @@
         let count = 0;
 
         function logVisit(amt, type) {
-            if (type === 'Manual') {
-                const custom = prompt("Enter Amount (₹):");
-                if (!custom) return;
+            if (type === 'Special') {
+                const custom = prompt("Enter Custom Amount (₹):");
+                if (!custom || isNaN(custom)) return;
                 amt = parseInt(custom);
             }
 
@@ -149,7 +160,7 @@
             row.innerHTML = `
                 <div class="entry-meta">
                     <b>${type}</b>
-                    <small>${time} • Secure Record</small>
+                    <small>${time} • UPI Verified</small>
                 </div>
                 <div class="entry-amt">+ ₹${amt}</div>
             `;
