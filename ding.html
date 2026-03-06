@@ -98,9 +98,16 @@ https://fee-sync-default-rtdb.firebaseio.com/",
             }
         }
 
-        function triggerNext() {
-            db.set({ current: currentToken + 1 });
-        }
+function triggerNext() {
+    console.log("Attempting to update...");
+    db.set({ current: currentToken + 1 })
+    .then(() => {
+        alert("Success! Check your Firebase Console now.");
+    })
+    .catch((error) => {
+        alert("FAILED: " + error.message);
+    });
+}
     </script>
 </body>
 </html>
