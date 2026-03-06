@@ -5,93 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fee Sync | Clinical OS</title>
     <style>
-        :root { --clinic-blue: #0284c7; --hospital-bg: #f8fafc; --text-main: #0f172a; --text-muted: #64748b; --success: #22c55e; --red: #ef4444; }
-        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--hospital-bg); margin: 0; display: flex; flex-direction: column; height: 100vh; color: var(--text-main); }
+        :root { --navy: #0f172a; --royal: #1e40af; --accent: #ef4444; --success: #22c55e; --bg: #f8fafc; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; color: var(--navy); }
         
-        /* CLEAN CLINICAL HEADER */
-        .brand-header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
-        .logo { font-size: 1.2rem; font-weight: 800; color: var(--clinic-blue); letter-spacing: -0.5px; }
-        .logo span { color: var(--red); }
-        .status-pill { background: #f0fdf4; color: var(--success); font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 50px; border: 1px solid #dcfce7; }
+        /* THE IMPRESSIVE BRAND BAND */
+        .brand-band { 
+            background: linear-gradient(135deg, var(--navy) 0%, var(--royal) 100%); 
+            padding: 30px 20px 60px 20px; 
+            text-align: center; 
+            color: white;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+        }
+        
+        .logo { font-size: 1.4rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 25px; display: block; }
+        .logo span { color: var(--accent); }
 
-        /* REVENUE SCOREBOARD (LIGHT) */
-        .earnings-panel { background: white; padding: 30px 20px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-        .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
-        .main-total { font-size: 3.2rem; font-weight: 900; color: var(--text-main); margin: 0; letter-spacing: -1px; }
-        
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
-        .stat-card { background: var(--hospital-bg); padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9; }
-        .stat-card small { display: block; font-size: 0.6rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
-        .stat-card span { font-size: 1rem; font-weight: 700; color: var(--clinic-blue); }
+        .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; font-weight: 700; margin-bottom: 8px; }
+        .main-total { font-size: 3.5rem; font-weight: 900; margin: 0; letter-spacing: -2px; }
 
-        /* THE TAP STATION */
-        .action-hub { flex: 1; padding: 25px 20px; overflow-y: auto; }
-        .section-header { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .section-header::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
+        /* FLOATING STATS */
+        .stats-overlay { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            margin: -30px 20px 0 20px; 
+        }
+        .stat-pill { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 20px; 
+            text-align: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+        .stat-pill small { display: block; font-size: 0.6rem; color: #64748b; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
+        .stat-pill span { font-size: 1.1rem; font-weight: 800; color: var(--navy); }
 
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
-        .speed-btn { background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .speed-btn:active { transform: scale(0.95); background: #f0f9ff; border-color: var(--clinic-blue); }
-        .speed-btn h3 { margin: 0; font-size: 1.3rem; color: var(--clinic-blue); }
-        .speed-btn p { margin: 4px 0 0 0; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        /* INTERACTION HUB */
+        .action-hub { flex: 1; padding: 40px 20px; overflow-y: auto; }
+        .section-tag { font-size: 0.75rem; font-weight: 800; color: #94a3b8; margin-bottom: 15px; letter-spacing: 1px; }
+
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 40px; }
+        .tap-card { 
+            background: white; 
+            border-radius: 20px; 
+            padding: 25px 10px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .tap-card:active { transform: scale(0.92); background: #f1f5f9; border-color: var(--royal); }
+        .tap-card h3 { margin: 0; font-size: 1.5rem; color: var(--navy); font-weight: 900; }
+        .tap-card p { margin: 5px 0 0 0; font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
         
-        /* ACTIVITY FEED */
-        .log-list { display: flex; flex-direction: column; gap: 10px; }
-        .log-row { background: white; padding: 12px 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f1f5f9; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .log-info { display: flex; flex-direction: column; }
-        .log-type { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
-        .log-time { font-size: 0.7rem; color: var(--text-muted); }
-        .log-amt { font-weight: 800; color: var(--success); font-size: 0.95rem; }
+        /* FEED */
+        .feed-entry { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 15px; 
+            margin-bottom: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-left: 5px solid var(--success);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .entry-meta { display: flex; flex-direction: column; }
+        .entry-meta b { font-size: 0.9rem; }
+        .entry-meta small { color: #94a3b8; font-size: 0.7rem; font-weight: 500; }
+        .entry-amt { font-weight: 900; color: var(--success); }
     </style>
 </head>
 <body>
 
-    <div class="brand-header">
+    <div class="brand-band">
         <div class="logo">⚡ FEE <span>SYNC</span></div>
-        <div class="status-pill">● LIVE ENCRYPTION</div>
+        <div class="label">Clinic Revenue Today</div>
+        <div class="main-total">₹<span id="total-val">0</span></div>
     </div>
 
-    <div class="earnings-panel">
-        <div class="label">Today's Clinic Revenue</div>
-        <div class="main-total">₹<span id="total-val">0</span></div>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <small>PATIENT COUNT</small>
-                <span id="count-val">0</span>
-            </div>
-            <div class="stat-card">
-                <small>REVENUE / VISIT</small>
-                <span id="avg-val">₹0</span>
-            </div>
+    <div class="stats-overlay">
+        <div class="stat-pill">
+            <small>Patients Seen</small>
+            <span id="count-val">0</span>
+        </div>
+        <div class="stat-pill">
+            <small>Avg. Revenue</small>
+            <span id="avg-val">₹0</span>
         </div>
     </div>
 
     <div class="action-hub">
-        <div class="section-header">QUICK LOG TRANSACTION</div>
+        <div class="section-tag">QUICK LOG TRANSACTION</div>
         <div class="btn-grid">
-            <div class="speed-btn" onclick="logData(500, 'Consultation')">
+            <div class="tap-card" onclick="logVisit(500, 'Consultation')">
                 <h3>₹500</h3>
                 <p>Consult</p>
             </div>
-            <div class="speed-btn" onclick="logData(200, 'Follow-up')">
+            <div class="tap-card" onclick="logVisit(200, 'Follow-up')">
                 <h3>₹200</h3>
                 <p>Follow-up</p>
             </div>
-            <div class="speed-btn" onclick="logData(1500, 'Treatment')">
-                <h3>₹1500</h3>
+            <div class="tap-card" onclick="logVisit(1200, 'Procedure')">
+                <h3>₹1200</h3>
                 <p>Procedure</p>
             </div>
-            <div class="speed-btn" onclick="logData(0, 'Special')">
-                <h3 style="color:var(--text-muted)">+</h3>
+            <div class="tap-card" onclick="logVisit(0, 'Manual')">
+                <h3 style="color:#94a3b8">+</h3>
                 <p>Custom</p>
             </div>
         </div>
 
-        <div class="section-header">TODAY'S ACTIVITY</div>
-        <div id="feed-container" class="log-list">
+        <div class="section-tag">LIVE ACTIVITY FEED</div>
+        <div id="activity-feed">
             </div>
     </div>
 
@@ -99,8 +129,8 @@
         let total = 0;
         let count = 0;
 
-        function logData(amt, type) {
-            if (type === 'Special') {
+        function logVisit(amt, type) {
+            if (type === 'Manual') {
                 const custom = prompt("Enter Amount (₹):");
                 if (!custom) return;
                 amt = parseInt(custom);
@@ -109,25 +139,23 @@
             total += amt;
             count++;
             
-            // UI Updates
             document.getElementById('total-val').innerText = total.toLocaleString('en-IN');
             document.getElementById('count-val').innerText = count;
             document.getElementById('avg-val').innerText = '₹' + Math.round(total / count);
 
-            // Feed Update
             const row = document.createElement('div');
-            row.className = 'log-row';
+            row.className = 'feed-entry';
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             row.innerHTML = `
-                <div class="log-info">
-                    <span class="log-type">${type}</span>
-                    <span class="log-time">${time} • UPI Verified</span>
+                <div class="entry-meta">
+                    <b>${type}</b>
+                    <small>${time} • Secure Record</small>
                 </div>
-                <div class="log-amt">+ ₹${amt}</div>
+                <div class="entry-amt">+ ₹${amt}</div>
             `;
             
-            const container = document.getElementById('feed-container');
-            container.prepend(row);
+            const feed = document.getElementById('activity-feed');
+            feed.prepend(row);
         }
     </script>
 </body>
