@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Sync | Live Cloud Test</title>
+    <title>Fee Sync | Live Queue</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -14,82 +14,90 @@
         .btn { background: var(--navy); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
         .btn-blue { background: var(--blue); }
         .hidden { display: none; }
+        #sync-status { font-size: 0.8rem; margin-bottom: 10px; color: #64748b; }
     </style>
 </head>
 <body>
 
     <div id="setup">
         <h2>⚡ FEE SYNC</h2>
-        <p><b>Cloud Sync Test</b><br>Open this on two different phones!</p>
+        <p>Live Queue Test</p>
         <button class="btn" onclick="init('doctor')">I AM RECEPTION</button>
         <button class="btn btn-blue" onclick="init('patient')">I AM PATIENT (#5)</button>
     </div>
 
     <div id="app" class="hidden">
-        <h3 id="role-title"></h3>
+        <div id="sync-status">● Connecting...</div>
         <div class="card">
-            <p id="status-label">Current Queue</p>
+            <p id="role-label">Current Token</p>
             <div class="token" id="token-val">0</div>
-            <p id="instruction" style="font-size: 0.8rem; color: #64748b;"></p>
         </div>
         <button id="action-btn" class="btn btn-blue hidden" onclick="triggerNext()">CALL NEXT PATIENT</button>
     </div>
 
     <script>
-        // PUBLIC TEST DATABASE (For your demo tonight)
-        const firebaseConfig = { databaseURL: "https://feesync-test-default-rtdb.firebaseio.com/" };
+        // PASTE YOUR ACTUAL FIREBASE CONFIG HERE
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_ID",
+            appId: "YOUR_APP_ID"
+        };
+
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('clinic_test_1');
+        
+        /* THE SAFECAR PATH: 
+           This points to 'live_queue', which is NOT your 'businesses' folder. 
+           This ensures zero conflict. */
+        const db = firebase.database().ref('live_queue/clinic_001');
 
         let currentToken = 0;
-        const patientToken = 5;
-
-        // Sound Logic
+        const patientToken = 5; 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
         function playDing() {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-            if (navigator.vibrate) navigator.vibrate(200);
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+                if (navigator.vibrate) navigator.vibrate(200);
+            } catch(e) { console.log("Audio blocked"); }
         }
 
         function init(role) {
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
 
-            // CLOUD LISTENER: This is what connects the two phones
+            // Listening to the cloud
             db.on('value', (snapshot) => {
+                document.getElementById('sync-status').innerText = "● Live Sync Active";
+                document.getElementById('sync-status').style.color = "#22c55e";
+                
                 const data = snapshot.val();
-                if (data) {
-                    currentToken = data.current;
-                    document.getElementById('token-val').innerText = currentToken;
-                    
-                    if (role === 'patient') {
-                        playDing();
-                        if (currentToken === (patientToken - 1)) {
-                            alert("You are NEXT! Please head to the cabin.");
-                        }
+                if (data && data.current !== undefined) {
+                    const newVal = data.current;
+                    if (newVal > currentToken || currentToken === 0) {
+                        currentToken = newVal;
+                        document.getElementById('token-val').innerText = currentToken;
+                        if (role === 'patient') playDing();
                     }
                 }
             });
 
             if(role === 'doctor') {
-                document.getElementById('role-title').innerText = "Reception Dashboard";
                 document.getElementById('action-btn').classList.remove('hidden');
-            } else {
-                document.getElementById('role-title').innerText = "Your Token: #5";
-                document.getElementById('instruction').innerText = "Phone will 'Ding' when the doctor clicks Next.";
             }
         }
 
         function triggerNext() {
-            // This pushes the number to the cloud
             db.set({ current: currentToken + 1 });
         }
     </script>
