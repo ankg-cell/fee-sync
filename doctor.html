@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Sync | Clinical Dashboard</title>
+    <style>
+        :root { --med-blue: #0f172a; --med-accent: #3b82f6; --bg: #f8fafc; --white: #ffffff; --red: #ef4444; --green: #22c55e; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        
+        .header { background: var(--white); padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 800; color: var(--med-blue); font-size: 1.2rem; }
+        .logo span { color: var(--red); }
+
+        .container { padding: 20px; max-width: 600px; margin: auto; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-box { background: var(--white); padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .stat-box small { color: #64748b; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; }
+        .stat-box div { font-size: 1.4rem; font-weight: 800; color: var(--med-blue); }
+
+        .patient-card { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .patient-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .patient-info h3 { margin: 0; font-size: 1.1rem; color: var(--med-blue); }
+        .patient-info p { margin: 2px 0 0 0; font-size: 0.85rem; color: #64748b; }
+        
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .badge-credit { background: #dcfce7; color: var(--green); }
+        .badge-due { background: #fee2e2; color: var(--red); }
+
+        .wallet-engine { background: #f1f5f9; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .engine-col small { display: block; font-size: 0.7rem; color: #64748b; margin-bottom: 5px; }
+        .engine-col span { font-weight: 700; font-size: 0.9rem; }
+
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+        .btn-log { background: var(--med-accent); color: white; }
+        .btn-bill { background: #e2e8f0; color: var(--med-blue); }
+        .btn:active { transform: scale(0.98); }
+
+        .doctor-note { font-size: 0.8rem; color: #94a3b8; text-align: center; margin-top: 30px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">⚡ FEE <span>SYNC</span> <small style="font-weight:400; font-size:0.7rem; color:#64748b;">Clinical</small></div>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-box">
+                <small>Consultations</small>
+                <div>24</div>
+            </div>
+            <div class="stat-box">
+                <small>Direct Earnings</small>
+                <div>₹18,500</div>
+            </div>
+        </div>
+
+        <h2 style="font-size: 1.1rem; margin-bottom: 15px;">Active Patients</h2>
+
+        <div class="patient-card">
+            <div class="patient-header">
+                <div class="patient-info">
+                    <h3>Mr. Aditya Bajaj</h3>
+                    <p>Physiotherapy Rehab Plan</p>
+                </div>
+                <span class="badge badge-credit">7 SESSIONS LEFT</span>
+            </div>
+            <div class="wallet-engine">
+                <div class="engine-col">
+                    <small>PLAN TOTAL</small>
+                    <span>₹8,000 (10)</span>
+                </div>
+                <div class="engine-col">
+                    <small>USED</small>
+                    <span>₹2,400 (3)</span>
+                </div>
+                <div class="engine-col" style="text-align: right;">
+                    <small>BALANCE</small>
+                    <span style="color: var(--green);">₹5,600</span>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-log" onclick="alert('Session Logged: 1 Session deducted from Aditya\'s balance.')">LOG VISIT</button>
+                <button class="btn btn-bill" onclick="alert('WhatsApping Receipt to Aditya...')">SEND RECEIPT</button>
+            </div>
+        </div>
+
+        <div class="patient-card">
+            <div class="patient-header">
+                <div class="patient-info">
+                    <h3>Baby Aarav (Anjali)</h3>
+                    <p>Pediatric Vaccination</p>
+                </div>
+                <span class="badge badge-due">DUES PENDING</span>
+            </div>
+            <div class="wallet-engine">
+                <div class="engine-col">
+                    <small>VISIT FEE</small>
+                    <span>₹1,500</span>
+                </div>
+                <div class="engine-col" style="text-align: right;">
+                    <small>STATUS</small>
+                    <span style="color: var(--red);">₹1,500 UNPAID</span>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-log" style="background:#0f172a;">MARK PAID</button>
+                <button class="btn btn-bill" onclick="alert('Sending UPI Payment Link to Anjali...')">WHATSAPP LINK</button>
+            </div>
+        </div>
+
+        <p class="doctor-note">
+            "Direct UPI payments go to your bank.<br>
+            Zero Commission. Total Privacy."
+        </p>
+    </div>
+
+</body>
+</html>
