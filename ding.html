@@ -3,34 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FeeSync Pro | Dr. Pradeep</title>
+    <title>FeeSync | Master Ledger & Queue</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --primary: #6366f1; --red: #ff4d4d; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #22c55e; }
         body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; padding-bottom: 50px; }
-        .header { width: 100%; padding: 30px 0; text-align: center; background: linear-gradient(180deg, #1e1b4b 0%, var(--dark) 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        
+        .header { width: 100%; padding: 25px 0; text-align: center; background: linear-gradient(180deg, #1e1b4b 0%, var(--dark) 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }
         .logo { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; }
         .logo span { color: var(--red); }
-        .clinic-tag { font-size: 0.8rem; letter-spacing: 3px; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-top: 5px; }
+        .clinic-tag { font-size: 0.8rem; letter-spacing: 3px; color: var(--primary); font-weight: 800; text-transform: uppercase; }
 
-        /* Dashboard Layout */
-        .container { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .main-card { background: var(--card); width: 92%; max-width: 450px; border-radius: 40px; padding: 40px 24px; text-align: center; margin-top: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+        .main-card { background: var(--card); width: 92%; max-width: 500px; border-radius: 40px; padding: 30px 20px; margin: 20px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
         
-        /* Token & Ledger Visuals */
-        .token-circle { width: 180px; height: 180px; border: 8px solid var(--primary); border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(99, 102, 241, 0.2); }
-        .token-val { font-size: 6rem; font-weight: 900; line-height: 1; }
-        .ledger-box { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 25px; margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; }
-        .stat-val { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+        /* High-Impact Ledger Logic */
+        .ledger-panel { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 20px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { text-align: left; }
+        .stat-label { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; }
+        .stat-val { font-size: 1.3rem; font-weight: 800; color: #fff; }
 
-        /* Buttons */
-        .btn { width: 100%; padding: 22px; border-radius: 24px; border: none; font-size: 1.15rem; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 15px; }
-        .btn-call { background: var(--primary); color: white; box-shadow: 0 12px 24px rgba(99, 102, 241, 0.4); }
+        /* Audit List */
+        .audit-list { width: 100%; margin-top: 15px; font-size: 0.8rem; text-align: left; }
+        .audit-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* Token Display */
+        .token-circle { width: 150px; height: 150px; border: 6px solid var(--primary); border-radius: 50%; margin: 15px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .token-val { font-size: 4.5rem; font-weight: 900; line-height: 1; }
+
+        /* Inputs & Buttons */
+        .input-group { margin-bottom: 15px; text-align: left; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 1rem; box-sizing: border-box; }
+        .btn { width: 100%; padding: 20px; border-radius: 24px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-call { background: var(--primary); color: white; }
         .btn-join { background: #fff; color: var(--dark); }
         .hidden { display: none !important; }
-        #status-msg { color: var(--red); font-weight: 800; margin-top: 20px; font-size: 1.1rem; }
+        #announcement { color: var(--red); font-weight: 800; margin-top: 15px; font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -40,184 +49,200 @@
         <div class="clinic-tag">DR. PRADEEP'S CLINIC</div>
     </div>
 
-    <div class="container">
-        <div id="doctor-view" class="main-card hidden">
-            <div style="font-size: 0.75rem; color: var(--accent); font-weight: 800; margin-bottom: 10px;">● MASTER RECEPTION ACTIVE</div>
-            <div class="token-circle">
-                <div style="font-size: 0.7rem; color: var(--primary); font-weight: 800;">CALLING</div>
-                <div class="token-val" id="doc-current">0</div>
+    <div id="doctor-view" class="main-card hidden">
+        <div style="font-size: 0.75rem; color: var(--accent); font-weight: 800; margin-bottom: 15px;">● CLINIC LEDGER ACTIVE</div>
+        
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div class="stat-label">DAILY REVENUE</div>
+                <div class="stat-val" id="rev-val">₹0</div>
             </div>
-
-            <div class="ledger-box">
-                <div>
-                    <div class="stat-label">CASH LEDGER</div>
-                    <div class="stat-val" id="total-revenue">₹0</div>
-                </div>
-                <div>
-                    <div class="stat-label">WAITING LIST</div>
-                    <div class="stat-val" id="waiting-count">0</div>
-                </div>
+            <div class="stat-box">
+                <div class="stat-label">NOW CALLING</div>
+                <div class="stat-val" id="call-val">#0</div>
             </div>
-
-            <button class="btn btn-call" id="call-btn" onclick="callNext()">NEXT PATIENT (₹500)</button>
-            <button class="btn" style="background:transparent; color:#64748b; font-size:0.85rem; text-decoration: underline;" onclick="resetSystem()">End of Day Reset</button>
         </div>
 
-        <div id="patient-join-view" class="main-card hidden">
-            <h2 style="margin:0">Secure Your Token</h2>
-            <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 30px;">Remotely join the queue and receive courteous voice alerts.</p>
-            <button class="btn btn-join" onclick="joinQueue()">GET MY TOKEN & START AUDIO</button>
-            <p style="margin-top: 40px;"><a href="?role=doctor" style="color:#475569; font-size: 0.75rem;">Staff Access</a></p>
+        <div id="next-patient-card" style="background: var(--primary); padding: 20px; border-radius: 20px; margin-bottom: 20px;">
+            <div style="font-size: 0.7rem; opacity: 0.8; font-weight: 800;">UP NEXT</div>
+            <div id="next-name" style="font-size: 1.5rem; font-weight: 900;">Waiting for Patient...</div>
         </div>
 
-        <div id="patient-status-view" class="main-card hidden">
-            <button id="unmute-btn" style="background: var(--accent); color:white; border:none; padding:15px; border-radius:15px; width:100%; font-weight:800; margin-bottom: 15px;" onclick="unlockAudio()">🔊 TAP TO UNMUTE VOICE ALERTS</button>
-            <div class="token-circle">
-                <div style="font-size: 0.7rem; color: var(--primary); font-weight: 800;">NOW AT</div>
-                <div class="token-val" id="pat-current">0</div>
-            </div>
-            <div style="background: rgba(99, 102, 241, 0.1); padding: 30px; border-radius: 30px; border: 1px solid var(--primary);">
-                <span style="color: #94a3b8; font-size: 0.85rem; font-weight: 700;">YOUR TICKET</span>
-                <div style="font-size: 4rem; font-weight: 900; color: var(--primary);">#<span id="my-num">0</span></div>
-            </div>
-            <div id="status-msg"></div>
+        <button class="btn btn-call" id="call-btn" onclick="callNext()">PROCESS & CALL NEXT</button>
+
+        <div class="ledger-panel">
+            <div class="stat-label">Today's Transactions</div>
+            <div id="audit-trail" class="audit-list"></div>
         </div>
+        
+        <button class="btn" style="background:transparent; color:#64748b; font-size:0.8rem; text-decoration: underline;" onclick="resetAll()">Full System Reset</button>
+    </div>
+
+    <div id="patient-join-view" class="main-card hidden">
+        <h2>Remote Check-in</h2>
+        <div class="input-group">
+            <label class="stat-label">Full Name</label>
+            <input type="text" id="p-name" placeholder="Enter patient name">
+        </div>
+        <button class="btn btn-join" onclick="joinQueue()">JOIN QUEUE & START VOICE</button>
+    </div>
+
+    <div id="patient-status-view" class="main-card hidden">
+        <button id="unmute" style="background:var(--accent); border:none; color:white; width:100%; padding:15px; border-radius:15px; font-weight:800; margin-bottom:15px;" onclick="unlockVoice()">🔊 TAP TO UNMUTE VOICE</button>
+        <div class="token-circle">
+            <div style="font-size: 0.6rem; color: var(--primary); font-weight: 800;">CALLING</div>
+            <div class="token-val" id="pat-current">0</div>
+        </div>
+        <div style="background: rgba(99, 102, 241, 0.1); padding: 25px; border-radius: 30px; border: 1px solid var(--primary);">
+            <div id="patient-display-name" style="font-weight: 800; color: var(--primary); margin-bottom: 5px;">...</div>
+            <span style="color: #94a3b8; font-size: 0.75rem;">YOUR TOKEN</span>
+            <div style="font-size: 3.5rem; font-weight: 900; color: var(--primary);">#<span id="my-num">0</span></div>
+        </div>
+        <div id="announcement"></div>
     </div>
 
     <script>
         // FIREBASE CONFIG
-        const firebaseConfig = {
-
-  apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+        const firebaseConfig = { 
+            
+              apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
   authDomain: "fee-sync.firebaseapp.com",
   databaseURL: "https://fee-sync-default-rtdb.firebaseio.com",
   projectId: "fee-sync",
   storageBucket: "fee-sync.firebasestorage.app",
   messagingSenderId: "572245525299",
   appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
-
-
-
-
-
             
-        };
+            
+            
+            
+            
+             };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('live_queue/clinic_test');
+        const db = firebase.database().ref('fee_sync_v3');
         
         const params = new URLSearchParams(window.location.search);
         const isDoctor = params.get('role') === 'doctor';
-        let myToken = parseInt(localStorage.getItem('feesync_v2_token')) || 0;
+        let myToken = parseInt(localStorage.getItem('fs_v3_token')) || 0;
+        let myName = localStorage.getItem('fs_v3_name') || "";
         let audioActive = false;
-        let lastAnnounced = -1;
+        let lastAlert = -1;
 
-        // 1. DYNAMIC UI ROUTING
-        function updateUI() {
+        function init() {
             document.getElementById('doctor-view').classList.toggle('hidden', !isDoctor);
             document.getElementById('patient-join-view').classList.toggle('hidden', isDoctor || myToken > 0);
             document.getElementById('patient-status-view').classList.toggle('hidden', isDoctor || myToken === 0);
-            if (myToken > 0) document.getElementById('my-num').innerText = myToken;
-        }
-        updateUI();
-
-        // 2. MASTER SYNC
-        db.on('value', (snap) => {
-            const data = snap.val() || { current: 0, last_issued: 0 };
             
-            // Handle Reset Logic
-            if (data.current === 0 && data.last_issued === 0 && myToken > 0) {
-                localStorage.removeItem('feesync_v2_token');
-                location.reload();
-            }
+            if(myToken > 0) document.getElementById('patient-display-name').innerText = myName;
 
-            if (isDoctor) {
-                document.getElementById('doc-current').innerText = data.current;
-                document.getElementById('total-revenue').innerText = "₹" + (data.current * 500);
-                document.getElementById('waiting-count').innerText = Math.max(0, data.last_issued - data.current);
-            } else if (myToken > 0) {
-                document.getElementById('pat-current').innerText = data.current;
-                handleVoiceAlerts(data.current);
-            }
-        });
-
-        // 3. DOCTOR ACTIONS: CALL NEXT
-        function callNext() {
-            const btn = document.getElementById('call-btn');
-            btn.innerText = "Syncing...";
-            btn.disabled = true;
-
-            db.transaction((data) => {
-                data = data || { current: 0, last_issued: 0 };
-                // Prevent calling beyond the issued tokens
-                if (data.current < data.last_issued) {
-                    data.current = (data.current || 0) + 1;
-                } else {
-                    alert("No more patients in the waiting list!");
+            db.on('value', (snap) => {
+                const data = snap.val() || { current: 0, last_issued: 0, audit: {}, tokens: {} };
+                
+                if (data.current === 0 && data.last_issued === 0 && myToken > 0) {
+                    localStorage.clear(); location.reload(); return;
                 }
-                return data;
-            }, () => {
-                btn.innerText = "NEXT PATIENT (₹500)";
-                btn.disabled = false;
-            });
-        }
 
-        // 4. PATIENT ACTIONS: JOIN QUEUE
-        function joinQueue() {
-            unlockAudio();
-            db.transaction((data) => {
-                data = data || { current: 0, last_issued: 0 };
-                // ALWAYS place patient at the end of the line
-                data.last_issued = (data.last_issued || 0) + 1;
-                return data;
-            }, (err, comm, snap) => {
-                if (comm) {
-                    myToken = snap.val().last_issued;
-                    localStorage.setItem('feesync_v2_token', myToken);
-                    updateUI();
+                if (isDoctor) {
+                    syncDoctorUI(data);
+                } else if (myToken > 0) {
+                    syncPatientUI(data);
                 }
             });
         }
 
-        // 5. COURTEOUS VOICE LOGIC
-        function handleVoiceAlerts(now) {
-            const m = document.getElementById('status-msg');
-            const diff = myToken - now;
+        function syncDoctorUI(data) {
+            document.getElementById('call-val').innerText = "#" + data.current;
+            document.getElementById('rev-val').innerText = "₹" + (data.current * 500);
             
-            if (diff === 3 && lastAnnounced !== 3) {
-                m.innerText = "3 patients left for your turn";
-                speak("Excuse me, there are only three patients left for your turn. Please stay nearby.");
-                lastAnnounced = 3;
-            } else if (diff === 0 && lastAnnounced !== 0) {
-                m.innerText = "THE DOCTOR IS CALLING YOU";
-                speak("The doctor is calling you now. Please get up and go to meet the doctor. Have a pleasant consultation.");
-                lastAnnounced = 0;
+            // Find next name
+            const nextToken = data.current + 1;
+            const nextName = (data.tokens && data.tokens[nextToken]) ? data.tokens[nextToken].name : "No more patients";
+            document.getElementById('next-name').innerText = nextName;
+
+            // Audit Trail
+            const trail = document.getElementById('audit-trail');
+            trail.innerHTML = "";
+            if (data.audit) {
+                Object.values(data.audit).reverse().slice(0, 5).forEach(log => {
+                    trail.innerHTML += `<div class="audit-item"><span>#${log.token} ${log.name}</span><span>₹500</span></div>`;
+                });
+            }
+        }
+
+        function syncPatientUI(data) {
+            document.getElementById('pat-current').innerText = data.current;
+            document.getElementById('my-num').innerText = myToken;
+            
+            const diff = myToken - data.current;
+            const m = document.getElementById('announcement');
+            if (diff === 3 && lastAlert !== 3) {
+                speak(`Excuse me ${myName}, there are only three patients left for your turn.`);
+                lastAlert = 3;
+            } else if (diff === 0 && lastAlert !== 0) {
+                m.innerText = "DR. IS CALLING YOU";
+                speak(`Doctor Pradeep is calling you now, ${myName}. Please go and have your consultation.`);
+                lastAlert = 0;
             } else if (diff > 0) {
-                m.innerText = diff + " patients ahead of you";
-            } else if (diff < 0) {
+                m.innerText = `${diff} patients ahead of you`;
+            } else {
                 m.innerText = "YOUR TURN HAS PASSED";
             }
         }
 
-        function unlockAudio() {
+        function joinQueue() {
+            const name = document.getElementById('p-name').value;
+            if (!name) return alert("Please enter your name");
+            unlockVoice();
+
+            db.transaction((data) => {
+                data = data || { current: 0, last_issued: 0, tokens: {} };
+                const next = (data.last_issued || 0) + 1;
+                data.last_issued = next;
+                if(!data.tokens) data.tokens = {};
+                data.tokens[next] = { name: name, timestamp: Date.now() };
+                return data;
+            }, (err, comm, snap) => {
+                if (comm) {
+                    const token = snap.val().last_issued;
+                    localStorage.setItem('fs_v3_token', token);
+                    localStorage.setItem('fs_v3_name', name);
+                    location.reload();
+                }
+            });
+        }
+
+        function callNext() {
+            db.transaction((data) => {
+                data = data || { current: 0, audit: {}, tokens: {} };
+                if (data.current < data.last_issued) {
+                    data.current++;
+                    const patient = data.tokens[data.current];
+                    if (!data.audit) data.audit = {};
+                    data.audit[Date.now()] = { token: data.current, name: patient.name };
+                } else {
+                    alert("No one is waiting.");
+                }
+                return data;
+            });
+        }
+
+        function unlockVoice() {
             audioActive = true;
             window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance("Voice alerts active."));
-            if (document.getElementById('unmute-btn')) document.getElementById('unmute-btn').style.display = 'none';
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance("Voice active"));
+            if(document.getElementById('unmute')) document.getElementById('unmute').style.display = 'none';
         }
 
         function speak(t) {
             if (!audioActive) return;
             window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(t);
-            u.rate = 0.85;
-            window.speechSynthesis.speak(u);
+            u.rate = 0.85; window.speechSynthesis.speak(u);
         }
 
-        function resetSystem() {
-            if (confirm("DANGER: Reset all tokens and ledger?")) {
-                db.set({ current: 0, last_issued: 0 });
-            }
-        }
+        function resetAll() { if(confirm("Reset entire clinic ledger?")) db.set({ current: 0, last_issued: 0 }); }
+
+        init();
     </script>
 </body>
-</html>fcon
+</html>
