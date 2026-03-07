@@ -8,40 +8,46 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --primary: #6366f1; --red: #ff4d4d; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #22c55e; }
-        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .header { width: 100%; padding: 25px 0; text-align: center; background: linear-gradient(180deg, #1e1b4b 0%, var(--dark) 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .logo { font-size: 2rem; font-weight: 900; letter-spacing: -2.5px; }
-        .logo span { color: var(--red); }
-        .main-card { background: var(--card); width: 92%; max-width: 440px; border-radius: 40px; padding: 35px 24px; text-align: center; margin: 20px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
-        .token-circle { width: 160px; height: 160px; border: 6px solid var(--primary); border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .token-val { font-size: 5rem; font-weight: 900; line-height: 1; color: #fff; }
-        .ledger-panel { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 20px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .stat-val { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
-        .btn { width: 100%; padding: 22px; border-radius: 22px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        .btn-call { background: var(--primary); color: white; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
-        .btn:disabled { opacity: 0.5; }
+        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .main-card { background: var(--card); width: 100%; max-width: 500px; border-radius: 30px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); }
+        .ledger-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-label { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; }
+        .stat-val { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+        
+        /* Queue & Wallet List */
+        .patient-list { margin-top: 20px; text-align: left; }
+        .patient-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 10px; border-left: 4px solid #334155; }
+        .active-p { border-left-color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+        .btn-call { width: 100%; padding: 20px; border-radius: 15px; border: none; background: var(--primary); color: white; font-weight: 800; font-size: 1rem; cursor: pointer; margin: 15px 0; }
+        .wallet-tag { font-size: 0.75rem; font-weight: 700; color: var(--accent); background: rgba(34, 197, 94, 0.1); padding: 4px 8px; border-radius: 6px; }
     </style>
 </head>
 <body>
-    <div class="header"><div class="logo">FEE<span>SYNC</span></div><div style="font-size: 0.7rem; color: var(--primary); font-weight: 800; letter-spacing: 2px;">RECEPTION DASHBOARD</div></div>
     <div class="main-card">
-        <div class="token-circle"><span style="font-size:0.65rem; color:var(--primary); font-weight:800; text-transform:uppercase;">Calling</span><div class="token-val" id="doc-token">0</div></div>
-        <div id="next-up-box" style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--primary);">
-            <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800; text-transform: uppercase;">Next in Line</div>
-            <div id="next-patient-name" style="font-size: 1.2rem; font-weight: 800; color: #fff;">...</div>
+        <div style="font-weight: 900; color: var(--primary); margin-bottom: 20px;">DR. PRADEEP'S CLINIC</div>
+        
+        <div class="ledger-grid">
+            <div class="stat-box"><div class="stat-label">DAILY CASH</div><div class="stat-val" id="total-rev">₹0</div></div>
+            <div class="stat-box"><div class="stat-label">CALLING</div><div class="stat-val" id="cur-token">#0</div></div>
         </div>
-        <div class="ledger-panel">
-            <div class="stat-grid">
-                <div><div style="font-size:0.6rem; color:#94a3b8">DAILY REVENUE</div><div class="stat-val" id="total-revenue">₹0</div></div>
-                <div><div style="font-size:0.6rem; color:#94a3b8">WAITING</div><div class="stat-val" id="wait-count">0</div></div>
+
+        <div id="next-box" style="padding:15px; background:var(--primary); border-radius:15px; margin-bottom:15px;">
+            <div style="font-size:0.6rem; font-weight:800; opacity:0.8;">UP NEXT</div>
+            <div id="next-name" style="font-size:1.3rem; font-weight:900;">...</div>
+        </div>
+
+        <button class="btn-call" onclick="callNext()">PROCESS & CALL NEXT</button>
+
+        <div class="patient-list" id="queue-list">
+            <div class="stat-label">Live Waiting List</div>
             </div>
-        </div>
-        <button class="btn btn-call" id="call-btn" onclick="callNext()" style="margin-top:20px;">CALL NEXT PATIENT</button>
-        <button onclick="fullReset()" style="background:transparent; color:#64748b; border:none; margin-top:30px; text-decoration:underline; font-size:0.8rem; cursor:pointer;">Reset All Data</button>
+
+        <button onclick="fullReset()" style="background:transparent; color:#64748b; border:none; margin-top:30px; text-decoration:underline; font-size:0.7rem; cursor:pointer; width:100%;">Reset All Data</button>
     </div>
+
     <script>
-        const firebaseConfig = { 
+        const firebaseConfig = {
               apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
   authDomain: "fee-sync.firebaseapp.com",
   databaseURL: "https://fee-sync-default-rtdb.firebaseio.com",
@@ -56,24 +62,42 @@
             
             };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('fee_sync_final');
+        const db = firebase.database().ref('fee_sync_v4');
+
         db.on('value', (snap) => {
             const data = snap.val() || { current: 0, last: 0, patients: {} };
-            document.getElementById('doc-token').innerText = data.current;
-            document.getElementById('total-revenue').innerText = "₹" + (data.current * 500);
-            document.getElementById('wait-count').innerText = Math.max(0, data.last - data.current);
-            const nextPatient = (data.patients && data.patients[data.current + 1]) ? data.patients[data.current + 1].name : "No one waiting";
-            document.getElementById('next-patient-name').innerText = nextPatient;
+            document.getElementById('cur-token').innerText = "#" + data.current;
+            document.getElementById('total-rev').innerText = "₹" + (data.current * 500);
+            
+            const nextIdx = data.current + 1;
+            document.getElementById('next-name').innerText = (data.patients && data.patients[nextIdx]) ? data.patients[nextIdx].name : "No more patients";
+
+            // Render Queue List
+            const list = document.getElementById('queue-list');
+            list.innerHTML = `<div class="stat-label" style="margin-bottom:10px;">Waiting List</div>`;
+            if (data.patients) {
+                Object.keys(data.patients).forEach(token => {
+                    if (token >= data.current) {
+                        const p = data.patients[token];
+                        const isActive = (token == data.current) ? 'active-p' : '';
+                        list.innerHTML += `
+                            <div class="patient-item ${isActive}">
+                                <div><b>#${token}</b> ${p.name}</div>
+                                <div class="wallet-tag">Wallet: ₹500</div>
+                            </div>`;
+                    }
+                });
+            }
         });
+
         function callNext() {
             db.transaction((data) => {
                 data = data || { current: 0, last: 0 };
                 if (data.current < data.last) data.current++;
-                else alert("Waiting list is empty.");
                 return data;
             });
         }
-        function fullReset() { if(confirm("Clear all data?")) db.set({ current: 0, last: 0, patients: {} }); }
+        function fullReset() { if(confirm("Clear ledger?")) db.set({ current: 0, last: 0, patients: {} }); }
     </script>
 </body>
 </html>
