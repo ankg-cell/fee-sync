@@ -8,173 +8,201 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --primary: #6366f1; --red: #ff4d4d; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #22c55e; }
-        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .header { width: 100%; padding: 25px 0; text-align: center; background: linear-gradient(180deg, #1e1b4b 0%, var(--dark) 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .logo { font-size: 2rem; font-weight: 900; letter-spacing: -2px; }
+        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; padding-bottom: 50px; }
+        .header { width: 100%; padding: 30px 0; text-align: center; background: linear-gradient(180deg, #1e1b4b 0%, var(--dark) 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; }
         .logo span { color: var(--red); }
-        .main-card { background: var(--card); width: 92%; max-width: 420px; border-radius: 35px; padding: 30px 20px; margin: 20px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); text-align: center; }
-        .token-hero { font-size: 7rem; font-weight: 900; line-height: 1; margin: 15px 0; color: #fff; }
-        .ledger-panel { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 20px; margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; }
-        .stat-label { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; }
-        .stat-val { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
-        .btn { width: 100%; padding: 20px; border-radius: 20px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; margin-top: 15px; }
-        .btn-call { background: var(--primary); color: white; border-bottom: 4px solid #4338ca; }
+        .clinic-tag { font-size: 0.8rem; letter-spacing: 3px; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-top: 5px; }
+
+        /* Dashboard Layout */
+        .container { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .main-card { background: var(--card); width: 92%; max-width: 450px; border-radius: 40px; padding: 40px 24px; text-align: center; margin-top: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+        
+        /* Token & Ledger Visuals */
+        .token-circle { width: 180px; height: 180px; border: 8px solid var(--primary); border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(99, 102, 241, 0.2); }
+        .token-val { font-size: 6rem; font-weight: 900; line-height: 1; }
+        .ledger-box { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 25px; margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; }
+        .stat-val { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+
+        /* Buttons */
+        .btn { width: 100%; padding: 22px; border-radius: 24px; border: none; font-size: 1.15rem; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+        .btn-call { background: var(--primary); color: white; box-shadow: 0 12px 24px rgba(99, 102, 241, 0.4); }
         .btn-join { background: #fff; color: var(--dark); }
         .hidden { display: none !important; }
-        #announcement { color: var(--red); font-weight: 800; margin-top: 15px; font-size: 1.1rem; text-transform: uppercase; }
-        .admin-link { margin-top: 40px; font-size: 0.7rem; color: #475569; text-decoration: none; }
+        #status-msg { color: var(--red); font-weight: 800; margin-top: 20px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="logo">FEE<span>SYNC</span></div>
-        <div style="font-size: 0.7rem; color: var(--primary); font-weight: 800; letter-spacing: 2px;">DR. PRADEEP'S CLINIC</div>
+        <div class="clinic-tag">DR. PRADEEP'S CLINIC</div>
     </div>
 
-    <div id="doctor-view" class="main-card hidden">
-        <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 800;">RECEPTION CONTROL</div>
-        <div class="token-hero" id="doc-token">0</div>
-        <div class="ledger-panel">
-            <div>
-                <div class="stat-label">Daily Cash</div>
-                <div class="stat-val" id="total-revenue">₹0</div>
+    <div class="container">
+        <div id="doctor-view" class="main-card hidden">
+            <div style="font-size: 0.75rem; color: var(--accent); font-weight: 800; margin-bottom: 10px;">● MASTER RECEPTION ACTIVE</div>
+            <div class="token-circle">
+                <div style="font-size: 0.7rem; color: var(--primary); font-weight: 800;">CALLING</div>
+                <div class="token-val" id="doc-current">0</div>
             </div>
-            <div>
-                <div class="stat-label">Last Issued</div>
-                <div class="stat-val" id="issued-count">0</div>
+
+            <div class="ledger-box">
+                <div>
+                    <div class="stat-label">CASH LEDGER</div>
+                    <div class="stat-val" id="total-revenue">₹0</div>
+                </div>
+                <div>
+                    <div class="stat-label">WAITING LIST</div>
+                    <div class="stat-val" id="waiting-count">0</div>
+                </div>
             </div>
-        </div>
-        <button class="btn btn-call" id="call-btn" onclick="callNext()">CALL NEXT PATIENT</button>
-        <button class="btn" style="background:transparent; color:#64748b; font-size:0.8rem; text-decoration: underline;" onclick="resetAll()">End Day Reset</button>
-    </div>
 
-    <div id="patient-join-view" class="main-card hidden">
-        <h2>Secure Your Token</h2>
-        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 30px;">Join the live queue remotely.</p>
-        <button class="btn btn-join" onclick="joinQueue()">GET TOKEN & ENABLE VOICE</button>
-        <br>
-        <a href="?role=doctor" class="admin-link">Staff Login</a>
-    </div>
-
-    <div id="patient-status-view" class="main-card hidden">
-        <button id="audio-btn" style="background: #22c55e; color:white; border:none; padding:12px; border-radius:12px; width:100%; font-weight:800; cursor:pointer;" onclick="unlockAudio()">🔊 TAP TO ENABLE VOICE ALERTS</button>
-        <div class="token-hero" id="pat-token">0</div>
-        <div style="background: rgba(99, 102, 241, 0.1); padding: 20px; border-radius: 25px; border: 1px solid var(--primary);">
-            <div style="font-size: 0.7rem; color: #94a3b8;">YOUR TICKET</div>
-            <div style="font-size: 3.5rem; font-weight: 900; color: var(--primary);">#<span id="my-num">0</span></div>
+            <button class="btn btn-call" id="call-btn" onclick="callNext()">NEXT PATIENT (₹500)</button>
+            <button class="btn" style="background:transparent; color:#64748b; font-size:0.85rem; text-decoration: underline;" onclick="resetSystem()">End of Day Reset</button>
         </div>
-        <div id="announcement"></div>
+
+        <div id="patient-join-view" class="main-card hidden">
+            <h2 style="margin:0">Secure Your Token</h2>
+            <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 30px;">Remotely join the queue and receive courteous voice alerts.</p>
+            <button class="btn btn-join" onclick="joinQueue()">GET MY TOKEN & START AUDIO</button>
+            <p style="margin-top: 40px;"><a href="?role=doctor" style="color:#475569; font-size: 0.75rem;">Staff Access</a></p>
+        </div>
+
+        <div id="patient-status-view" class="main-card hidden">
+            <button id="unmute-btn" style="background: var(--accent); color:white; border:none; padding:15px; border-radius:15px; width:100%; font-weight:800; margin-bottom: 15px;" onclick="unlockAudio()">🔊 TAP TO UNMUTE VOICE ALERTS</button>
+            <div class="token-circle">
+                <div style="font-size: 0.7rem; color: var(--primary); font-weight: 800;">NOW AT</div>
+                <div class="token-val" id="pat-current">0</div>
+            </div>
+            <div style="background: rgba(99, 102, 241, 0.1); padding: 30px; border-radius: 30px; border: 1px solid var(--primary);">
+                <span style="color: #94a3b8; font-size: 0.85rem; font-weight: 700;">YOUR TICKET</span>
+                <div style="font-size: 4rem; font-weight: 900; color: var(--primary);">#<span id="my-num">0</span></div>
+            </div>
+            <div id="status-msg"></div>
+        </div>
     </div>
 
     <script>
         // FIREBASE CONFIG
         const firebaseConfig = {
-              apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+
+  apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
   authDomain: "fee-sync.firebaseapp.com",
   databaseURL: "https://fee-sync-default-rtdb.firebaseio.com",
   projectId: "fee-sync",
   storageBucket: "fee-sync.firebasestorage.app",
   messagingSenderId: "572245525299",
   appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
+
+
+
+
+
             
-            
-            
-            
-            
-            };
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('live_queue/clinic_test');
         
         const params = new URLSearchParams(window.location.search);
         const isDoctor = params.get('role') === 'doctor';
-        let myToken = parseInt(localStorage.getItem('fs_token')) || 0;
+        let myToken = parseInt(localStorage.getItem('feesync_v2_token')) || 0;
         let audioActive = false;
-        let lastAlert = -1;
+        let lastAnnounced = -1;
 
-        function init() {
-            // FIX: Explicitly check for isDoctor first to ensure the button shows
-            if (isDoctor) {
-                document.getElementById('doctor-view').classList.remove('hidden');
-                document.getElementById('patient-join-view').classList.add('hidden');
-                document.getElementById('patient-status-view').classList.add('hidden');
-            } else if (myToken > 0) {
-                document.getElementById('patient-status-view').classList.remove('hidden');
-                document.getElementById('doctor-view').classList.add('hidden');
-                document.getElementById('patient-join-view').classList.add('hidden');
-            } else {
-                document.getElementById('patient-join-view').classList.remove('hidden');
-                document.getElementById('doctor-view').classList.add('hidden');
-                document.getElementById('patient-status-view').classList.add('hidden');
-            }
-            
-            // MASTER SYNC
-            db.on('value', (snap) => {
-                const data = snap.val() || { current: 0, last_issued: 0 };
-                
-                // Reset Logic
-                if (data.current === 0 && data.last_issued === 0 && myToken > 0) {
-                    localStorage.removeItem('fs_token');
-                    location.reload();
-                    return;
-                }
-
-                // Update UI based on who is looking
-                if (isDoctor) {
-                    document.getElementById('doc-token').innerText = data.current;
-                    document.getElementById('issued-count').innerText = data.last_issued;
-                    document.getElementById('total-revenue').innerText = "₹" + (data.current * 500);
-                } else {
-                    document.getElementById('pat-token').innerText = data.current;
-                    if (myToken > 0) {
-                        document.getElementById('my-num').innerText = myToken;
-                        handleVoice(data.current);
-                    }
-                }
-            });
+        // 1. DYNAMIC UI ROUTING
+        function updateUI() {
+            document.getElementById('doctor-view').classList.toggle('hidden', !isDoctor);
+            document.getElementById('patient-join-view').classList.toggle('hidden', isDoctor || myToken > 0);
+            document.getElementById('patient-status-view').classList.toggle('hidden', isDoctor || myToken === 0);
+            if (myToken > 0) document.getElementById('my-num').innerText = myToken;
         }
+        updateUI();
 
+        // 2. MASTER SYNC
+        db.on('value', (snap) => {
+            const data = snap.val() || { current: 0, last_issued: 0 };
+            
+            // Handle Reset Logic
+            if (data.current === 0 && data.last_issued === 0 && myToken > 0) {
+                localStorage.removeItem('feesync_v2_token');
+                location.reload();
+            }
+
+            if (isDoctor) {
+                document.getElementById('doc-current').innerText = data.current;
+                document.getElementById('total-revenue').innerText = "₹" + (data.current * 500);
+                document.getElementById('waiting-count').innerText = Math.max(0, data.last_issued - data.current);
+            } else if (myToken > 0) {
+                document.getElementById('pat-current').innerText = data.current;
+                handleVoiceAlerts(data.current);
+            }
+        });
+
+        // 3. DOCTOR ACTIONS: CALL NEXT
         function callNext() {
             const btn = document.getElementById('call-btn');
-            btn.innerText = "Calling...";
+            btn.innerText = "Syncing...";
             btn.disabled = true;
-            
-            db.child('current').transaction(c => (c || 0) + 1, () => {
-                btn.innerText = "CALL NEXT PATIENT";
+
+            db.transaction((data) => {
+                data = data || { current: 0, last_issued: 0 };
+                // Prevent calling beyond the issued tokens
+                if (data.current < data.last_issued) {
+                    data.current = (data.current || 0) + 1;
+                } else {
+                    alert("No more patients in the waiting list!");
+                }
+                return data;
+            }, () => {
+                btn.innerText = "NEXT PATIENT (₹500)";
                 btn.disabled = false;
             });
         }
 
+        // 4. PATIENT ACTIONS: JOIN QUEUE
         function joinQueue() {
             unlockAudio();
-            db.child('last_issued').transaction(v => (v || 0) + 1, (err, comm, snap) => {
+            db.transaction((data) => {
+                data = data || { current: 0, last_issued: 0 };
+                // ALWAYS place patient at the end of the line
+                data.last_issued = (data.last_issued || 0) + 1;
+                return data;
+            }, (err, comm, snap) => {
                 if (comm) {
-                    myToken = snap.val();
-                    localStorage.setItem('fs_token', myToken);
-                    location.reload();
+                    myToken = snap.val().last_issued;
+                    localStorage.setItem('feesync_v2_token', myToken);
+                    updateUI();
                 }
             });
         }
 
-        function handleVoice(now) {
-            const m = document.getElementById('announcement');
+        // 5. COURTEOUS VOICE LOGIC
+        function handleVoiceAlerts(now) {
+            const m = document.getElementById('status-msg');
             const diff = myToken - now;
-            if (diff === 3 && lastAlert !== 3) {
-                m.innerText = "3 patients left";
+            
+            if (diff === 3 && lastAnnounced !== 3) {
+                m.innerText = "3 patients left for your turn";
                 speak("Excuse me, there are only three patients left for your turn. Please stay nearby.");
-                lastAlert = 3;
-            } else if (diff === 0 && lastAlert !== 0) {
-                m.innerText = "DR. IS CALLING YOU";
-                speak("The doctor is calling you. Please go and have your consultation now.");
-                lastAlert = 0;
+                lastAnnounced = 3;
+            } else if (diff === 0 && lastAnnounced !== 0) {
+                m.innerText = "THE DOCTOR IS CALLING YOU";
+                speak("The doctor is calling you now. Please get up and go to meet the doctor. Have a pleasant consultation.");
+                lastAnnounced = 0;
+            } else if (diff > 0) {
+                m.innerText = diff + " patients ahead of you";
+            } else if (diff < 0) {
+                m.innerText = "YOUR TURN HAS PASSED";
             }
         }
 
         function unlockAudio() {
             audioActive = true;
             window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance("Voice active"));
-            if(document.getElementById('audio-btn')) document.getElementById('audio-btn').style.display = "none";
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance("Voice alerts active."));
+            if (document.getElementById('unmute-btn')) document.getElementById('unmute-btn').style.display = 'none';
         }
 
         function speak(t) {
@@ -185,9 +213,11 @@
             window.speechSynthesis.speak(u);
         }
 
-        function resetAll() { if(confirm("Reset all data?")) db.set({ current: 0, last_issued: 0 }); }
-
-        init();
+        function resetSystem() {
+            if (confirm("DANGER: Reset all tokens and ledger?")) {
+                db.set({ current: 0, last_issued: 0 });
+            }
+        }
     </script>
 </body>
-</html>
+</html>fcon
