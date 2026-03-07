@@ -3,144 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Sync | Dr. Pradeep's Clinic</title>
+    <title>FeeSync | Doctor Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --navy: #0f172a; --royal: #2563eb; --accent: #ef4444; --success: #22c55e; --bg: #f8fafc; --border: #e2e8f0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--navy); padding-bottom: 80px; }
-        
-        /* PREMIUM BRANDED HEADER */
-        .header { background: white; padding: 20px; border-bottom: 1px solid var(--border); }
-        .brand-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .fee-sync { font-weight: 900; font-size: 0.9rem; letter-spacing: -0.5px; }
-        .fee-sync span { color: var(--accent); }
-        .dr-name { font-size: 1.5rem; font-weight: 900; color: var(--navy); }
-
-        /* REVENUE DASHBOARD */
-        .scoreboard { background: var(--navy); color: white; padding: 25px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-radius: 0 0 30px 30px; }
-        .stat-card small { display: block; font-size: 0.6rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .stat-card b { font-size: 2rem; font-weight: 900; color: #f1f5f9; }
-
-        /* QUICK ACTIONS (HIGH VOLUME) */
-        .section { padding: 25px 20px 10px 20px; }
-        .section-title { font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; }
-        .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .tap-btn { background: white; border: 1.5px solid var(--border); border-radius: 15px; padding: 15px 5px; text-align: center; cursor: pointer; }
-        .tap-btn:active { background: #f1f5f9; transform: scale(0.95); }
-        .tap-btn b { display: block; font-size: 1.1rem; color: var(--royal); }
-        .tap-btn small { font-size: 0.6rem; font-weight: 700; color: #64748b; }
-
-        /* UNIFIED SEARCH & LIST */
-        .search-container { padding: 0 20px; margin-top: 10px; }
-        .search-bar { width: 100%; padding: 15px; border-radius: 12px; border: 1.5px solid var(--border); font-size: 1rem; box-sizing: border-box; outline: none; }
-        .search-bar:focus { border-color: var(--royal); }
-
-        .patient-card { background: white; margin: 10px 20px; padding: 15px; border-radius: 18px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .p-info b { display: block; font-size: 1rem; }
-        .p-info span { font-size: 0.7rem; color: #64748b; font-weight: 600; }
-        
-        .p-wallet { text-align: right; }
-        .p-wallet b { display: block; font-size: 1rem; }
-        .p-wallet small { font-size: 0.55rem; font-weight: 800; color: #94a3b8; }
-
-        /* FOOTER REPORT */
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; border-top: 1px solid var(--border); }
-        .btn-report { width: 100%; background: var(--royal); color: white; padding: 16px; border: none; border-radius: 12px; font-weight: 800; font-size: 0.9rem; }
+        :root { --primary: #6366f1; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #22c55e; }
+        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .header { width: 100%; padding: 25px 0; text-align: center; background: #1e1b4b; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .main-card { background: var(--card); width: 92%; max-width: 440px; border-radius: 40px; padding: 35px 24px; text-align: center; margin: 20px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        .token-circle { width: 140px; height: 140px; border: 6px solid var(--primary); border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .token-val { font-size: 4rem; font-weight: 900; }
+        .ledger-panel { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 20px; margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; }
+        .stat-val { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
+        .btn-call { width: 100%; padding: 22px; border-radius: 22px; border: none; font-size: 1.1rem; font-weight: 800; background: var(--primary); color: white; cursor: pointer; }
+        .btn-call:disabled { opacity: 0.5; }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <div class="brand-row">
-            <div class="fee-sync">⚡ FEE <span>SYNC</span></div>
-            <div style="font-size: 0.6rem; background: #f1f5f9; padding: 4px 8px; border-radius: 5px; font-weight: 700;">LIVE CONNECT</div>
+    <div class="header"><div style="font-size: 1.5rem; font-weight: 900;">FEE<span>SYNC</span> PRO</div></div>
+    <div class="main-card">
+        <div class="token-circle"><span style="font-size:0.7rem; color:var(--primary); font-weight:800;">CALLING</span><div class="token-val" id="doc-token">0</div></div>
+        <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--primary);">
+            <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800;">NEXT IN LINE</div>
+            <div id="next-name" style="font-size: 1.2rem; font-weight: 800;">Waiting...</div>
         </div>
-        <div class="dr-name">Dr. Pradeep's Clinic</div>
-    </div>
-
-    <div class="scoreboard">
-        <div class="stat-card">
-            <small>Total Revenue</small>
-            <b id="total-rev">₹0</b>
+        <div class="ledger-panel">
+            <div><div style="font-size:0.6rem; color:#94a3b8">DAILY CASH</div><div class="stat-val" id="revenue">₹0</div></div>
+            <div><div style="font-size:0.6rem; color:#94a3b8">WAITING</div><div class="stat-val" id="wait-count">0</div></div>
         </div>
-        <div class="stat-card" style="text-align: right;">
-            <small>Total Patients</small>
-            <b id="total-pts">0</b>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Quick Log (High Volume)</div>
-        <div class="quick-grid">
-            <div class="tap-btn" onclick="logVisit(500, 'Consult')"><b>₹500</b><small>Consult</small></div>
-            <div class="tap-btn" onclick="logVisit(200, 'Follow')"><b>₹200</b><small>Follow-up</small></div>
-            <div class="tap-btn" onclick="logVisit(1500, 'Proc')"><b>₹1500</b><small>Procedure</small></div>
-        </div>
-    </div>
-
-    <div class="section-title" style="margin-left: 20px;">Unified Patient Ledger</div>
-    <div class="search-container">
-        <input type="text" id="p-search" class="search-bar" placeholder="Search Patient..." onkeyup="filter()">
-    </div>
-
-    <div id="patient-list">
-        <div class="patient-card">
-            <div class="p-info"><b>Rahul Khanna</b><span>Ayurveda Therapy</span></div>
-            <div class="p-wallet">
-                <small>WALLET</small>
-                <b style="color:var(--success)">₹4,500</b>
-                <button onclick="updateWallet(0, -800)" style="border:none; background:var(--navy); color:white; font-size:0.6rem; padding:5px 10px; border-radius:5px; margin-top:5px;">Deduct ₹800</button>
-            </div>
-        </div>
-        <div class="patient-card">
-            <div class="p-info"><b>Suman Lata</b><span>Physio Session</span></div>
-            <div class="p-wallet">
-                <small>DUE</small>
-                <b style="color:var(--accent)">₹500</b>
-                <button onclick="updateWallet(1, 500)" style="border:none; background:var(--success); color:white; font-size:0.6rem; padding:5px 10px; border-radius:5px; margin-top:5px;">Pay Dues</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="footer">
-        <button class="btn-report" onclick="generateReport()">Generate 8:00 PM Report</button>
+        <button class="btn-call" id="call-btn" onclick="callNext()" style="margin-top:20px;">CALL NEXT PATIENT</button>
+        <button onclick="resetDay()" style="background:none; border:none; color:#64748b; margin-top:20px; text-decoration:underline; cursor:pointer;">Reset Daily Ledger</button>
     </div>
 
     <script>
-        let total = 0, pts = 0;
-        let wallets = [4500, -500];
+        const firebaseConfig = { 
+            
+  apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+  authDomain: "fee-sync.firebaseapp.com",
+  databaseURL: "https://fee-sync-default-rtdb.firebaseio.com",
+  projectId: "fee-sync",
+  storageBucket: "fee-sync.firebasestorage.app",
+  messagingSenderId: "572245525299",
+  appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
+            
+            
+            
+            
+            };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database().ref('fee_sync_final');
 
-        function logVisit(amt, label) {
-            total += amt;
-            pts++;
-            updateUI();
+        db.on('value', (snap) => {
+            const data = snap.val() || { current: 0, last: 0, patients: {} };
+            document.getElementById('doc-token').innerText = data.current;
+            document.getElementById('revenue').innerText = "₹" + (data.current * 500);
+            document.getElementById('wait-count').innerText = Math.max(0, data.last - data.current);
+            const nextPatient = (data.patients && data.patients[data.current + 1]) ? data.patients[data.current + 1].name : "No one waiting";
+            document.getElementById('next-name').innerText = nextPatient;
+        });
+
+        function callNext() {
+            const btn = document.getElementById('call-btn');
+            btn.disabled = true;
+            db.transaction((data) => {
+                data = data || { current: 0, last: 0 };
+                if (data.current < data.last) data.current++;
+                else alert("Waiting list is empty.");
+                return data;
+            }, () => { btn.disabled = false; });
         }
 
-        function updateWallet(idx, amt) {
-            wallets[idx] += amt;
-            if (amt > 0) total += amt; // Add to revenue only if collecting money
-            if (amt < 0) pts++; // Count as a patient seen if deducting a session
-            updateUI();
-            location.reload(); // Refresh to show changes for demo
-        }
-
-        function updateUI() {
-            // Save to LocalStorage for persistence during demo
-            localStorage.setItem('dr_total', total);
-            localStorage.setItem('dr_pts', pts);
-            document.getElementById('total-rev').innerText = '₹' + total.toLocaleString('en-IN');
-            document.getElementById('total-pts').innerText = pts;
-        }
-
-        // On Load
-        window.onload = () => {
-            total = parseInt(localStorage.getItem('dr_total')) || 0;
-            pts = parseInt(localStorage.getItem('dr_pts')) || 0;
-            updateUI();
-        }
-
-        function generateReport() {
-            alert(`DAILY RECONCILIATION\nClinic: Dr. Pradeep\nRevenue: ₹${total}\nPatients: ${pts}\nStatus: Balanced\n---\nVerified by Fee Sync ⚡`);
-        }
+        function resetDay() { if(confirm("Clear all?")) db.set({ current: 0, last: 0 }); }
     </script>
 </body>
 </html>
