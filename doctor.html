@@ -2,41 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FeeSync | Doctor Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FeeSync Admin | Dr. Pradeep</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --primary: #6366f1; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #22c55e; }
+        :root { --primary: #6366f1; --red: #ff4d4d; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #22c55e; }
         body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .header { width: 100%; padding: 25px 0; text-align: center; background: #1e1b4b; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .main-card { background: var(--card); width: 92%; max-width: 440px; border-radius: 40px; padding: 35px 24px; text-align: center; margin: 20px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-        .token-circle { width: 140px; height: 140px; border: 6px solid var(--primary); border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .token-val { font-size: 4rem; font-weight: 900; }
-        .ledger-panel { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 20px; margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; }
+        .header { width: 100%; padding: 25px 0; text-align: center; background: linear-gradient(180deg, #1e1b4b 0%, var(--dark) 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo { font-size: 2rem; font-weight: 900; letter-spacing: -2.5px; }
+        .logo span { color: var(--red); }
+        .main-card { background: var(--card); width: 92%; max-width: 440px; border-radius: 40px; padding: 35px 24px; text-align: center; margin: 20px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+        .token-circle { width: 160px; height: 160px; border: 6px solid var(--primary); border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .token-val { font-size: 5rem; font-weight: 900; line-height: 1; color: #fff; }
+        .ledger-panel { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 20px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .stat-val { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
-        .btn-call { width: 100%; padding: 22px; border-radius: 22px; border: none; font-size: 1.1rem; font-weight: 800; background: var(--primary); color: white; cursor: pointer; }
-        .btn-call:disabled { opacity: 0.5; }
+        .btn { width: 100%; padding: 22px; border-radius: 22px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-call { background: var(--primary); color: white; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+        .btn:disabled { opacity: 0.5; }
     </style>
 </head>
 <body>
-    <div class="header"><div style="font-size: 1.5rem; font-weight: 900;">FEE<span>SYNC</span> PRO</div></div>
+    <div class="header"><div class="logo">FEE<span>SYNC</span></div><div style="font-size: 0.7rem; color: var(--primary); font-weight: 800; letter-spacing: 2px;">RECEPTION DASHBOARD</div></div>
     <div class="main-card">
-        <div class="token-circle"><span style="font-size:0.7rem; color:var(--primary); font-weight:800;">CALLING</span><div class="token-val" id="doc-token">0</div></div>
-        <div style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--primary);">
-            <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800;">NEXT IN LINE</div>
-            <div id="next-name" style="font-size: 1.2rem; font-weight: 800;">Waiting...</div>
+        <div class="token-circle"><span style="font-size:0.65rem; color:var(--primary); font-weight:800; text-transform:uppercase;">Calling</span><div class="token-val" id="doc-token">0</div></div>
+        <div id="next-up-box" style="background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--primary);">
+            <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800; text-transform: uppercase;">Next in Line</div>
+            <div id="next-patient-name" style="font-size: 1.2rem; font-weight: 800; color: #fff;">...</div>
         </div>
         <div class="ledger-panel">
-            <div><div style="font-size:0.6rem; color:#94a3b8">DAILY CASH</div><div class="stat-val" id="revenue">₹0</div></div>
-            <div><div style="font-size:0.6rem; color:#94a3b8">WAITING</div><div class="stat-val" id="wait-count">0</div></div>
+            <div class="stat-grid">
+                <div><div style="font-size:0.6rem; color:#94a3b8">DAILY REVENUE</div><div class="stat-val" id="total-revenue">₹0</div></div>
+                <div><div style="font-size:0.6rem; color:#94a3b8">WAITING</div><div class="stat-val" id="wait-count">0</div></div>
+            </div>
         </div>
-        <button class="btn-call" id="call-btn" onclick="callNext()" style="margin-top:20px;">CALL NEXT PATIENT</button>
-        <button onclick="resetDay()" style="background:none; border:none; color:#64748b; margin-top:20px; text-decoration:underline; cursor:pointer;">Reset Daily Ledger</button>
+        <button class="btn btn-call" id="call-btn" onclick="callNext()" style="margin-top:20px;">CALL NEXT PATIENT</button>
+        <button onclick="fullReset()" style="background:transparent; color:#64748b; border:none; margin-top:30px; text-decoration:underline; font-size:0.8rem; cursor:pointer;">Reset All Data</button>
     </div>
-
     <script>
         const firebaseConfig = { 
+            
             
   apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
   authDomain: "fee-sync.firebaseapp.com",
@@ -49,31 +55,28 @@
             
             
             
+            
+            
             };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('fee_sync_final');
-
         db.on('value', (snap) => {
             const data = snap.val() || { current: 0, last: 0, patients: {} };
             document.getElementById('doc-token').innerText = data.current;
-            document.getElementById('revenue').innerText = "₹" + (data.current * 500);
+            document.getElementById('total-revenue').innerText = "₹" + (data.current * 500);
             document.getElementById('wait-count').innerText = Math.max(0, data.last - data.current);
             const nextPatient = (data.patients && data.patients[data.current + 1]) ? data.patients[data.current + 1].name : "No one waiting";
-            document.getElementById('next-name').innerText = nextPatient;
+            document.getElementById('next-patient-name').innerText = nextPatient;
         });
-
         function callNext() {
-            const btn = document.getElementById('call-btn');
-            btn.disabled = true;
             db.transaction((data) => {
                 data = data || { current: 0, last: 0 };
                 if (data.current < data.last) data.current++;
                 else alert("Waiting list is empty.");
                 return data;
-            }, () => { btn.disabled = false; });
+            });
         }
-
-        function resetDay() { if(confirm("Clear all?")) db.set({ current: 0, last: 0 }); }
+        function fullReset() { if(confirm("Clear all data?")) db.set({ current: 0, last: 0, patients: {} }); }
     </script>
 </body>
 </html>
