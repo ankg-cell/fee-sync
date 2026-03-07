@@ -15,10 +15,12 @@
         .main-card { background: var(--card); width: 92%; max-width: 440px; border-radius: 40px; padding: 35px 24px; text-align: center; margin: 20px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
         .token-circle { width: 160px; height: 160px; border: 6px solid var(--primary); border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .token-val { font-size: 5rem; font-weight: 900; color: #fff; line-height: 1; }
-        input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 1.1rem; margin-bottom: 15px; box-sizing: border-box; }
+        input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 1.1rem; margin-bottom: 15px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--primary); }
         .btn { width: 100%; padding: 22px; border-radius: 22px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
         .btn-join { background: #fff; color: var(--dark); }
         .hidden { display: none !important; }
+        #status-msg { color: var(--red); font-weight: 800; margin-top: 20px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
@@ -26,65 +28,73 @@
     
     <div id="join-view" class="main-card">
         <h2 style="margin:0 0 10px 0">Clinic Check-in</h2>
-        <input type="text" id="p-name" placeholder="Enter Full Name">
-        <button class="btn btn-join" onclick="joinQueue()">JOIN QUEUE & START VOICE</button>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px;">Enter your name to join the live queue.</p>
+        <input type="text" id="p-name" placeholder="Enter Full Name" autocomplete="off">
+        <button class="btn btn-join" onclick="joinQueue()">JOIN QUEUE & ENABLE VOICE</button>
     </div>
 
     <div id="status-view" class="main-card hidden">
-        <button id="voice-lock" style="background:var(--accent); color:white; border:none; padding:15px; border-radius:15px; width:100%; font-weight:800; margin-bottom:15px;" onclick="unlockVoice()">🔊 ACTIVATE VOICE ASSISTANT</button>
+        <button id="voice-lock" style="background:var(--accent); color:white; border:none; padding:15px; border-radius:15px; width:100%; font-weight:800; margin-bottom:15px; cursor:pointer;" onclick="unlockVoice()">🔊 TAP TO UNMUTE VOICE</button>
         <div class="token-circle"><span style="font-size:0.6rem; color:var(--primary); font-weight:800; text-transform:uppercase;">Now Calling</span><div class="token-val" id="pat-current">0</div></div>
         <div style="background: rgba(99, 102, 241, 0.1); padding: 25px; border-radius: 30px; border: 1px solid var(--primary);">
             <div id="display-name" style="font-weight: 800; color: var(--primary); margin-bottom: 5px; text-transform: uppercase;">...</div>
             <div style="font-size: 3.5rem; font-weight: 900; color: var(--primary);">#<span id="my-num">0</span></div>
         </div>
-        <div id="status-msg" style="color:var(--red); font-weight:800; margin-top:20px;"></div>
+        <div id="status-msg"></div>
     </div>
 
     <script>
+        // FIREBASE CONFIG
         const firebaseConfig = { 
-            
-            
-  apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
+   apiKey: "AIzaSyBKdMRrtS1Bgjs4BXPZfM13oT3zM16Nt0g",
   authDomain: "fee-sync.firebaseapp.com",
   databaseURL: "https://fee-sync-default-rtdb.firebaseio.com",
   projectId: "fee-sync",
   storageBucket: "fee-sync.firebasestorage.app",
   messagingSenderId: "572245525299",
   appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
-            
-            
-            
-            
-            
-            
-            };
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('fee_sync_final');
+
         let myToken = parseInt(localStorage.getItem('fs_tk')) || 0;
         let myName = localStorage.getItem('fs_nm') || "";
         let audioActive = false, lastSpeak = -1;
 
         function updateView() {
-            document.getElementById('join-view').classList.toggle('hidden', myToken > 0);
-            document.getElementById('status-view').classList.toggle('hidden', myToken === 0);
-            if(myToken > 0) {
+            const isRegistered = (myToken > 0);
+            document.getElementById('join-view').classList.toggle('hidden', isRegistered);
+            document.getElementById('status-view').classList.toggle('hidden', !isRegistered);
+            if(isRegistered) {
                 document.getElementById('my-num').innerText = myToken;
                 document.getElementById('display-name').innerText = myName;
             }
         }
         updateView();
 
+        // THE MASTER SYNC
         db.on('value', (snap) => {
             const data = snap.val() || { current: 0, last: 0 };
-            if (data.current === 0 && data.last === 0) { localStorage.clear(); location.reload(); }
+            
+            // RESET GUARD: Only clear and reload if we have a token but the DB says start over
+            if (data.current === 0 && data.last === 0 && myToken > 0) {
+                localStorage.removeItem('fs_tk');
+                localStorage.removeItem('fs_nm');
+                myToken = 0;
+                location.reload(); 
+                return;
+            }
+
             document.getElementById('pat-current').innerText = data.current;
             if (myToken > 0) handleAlerts(data.current);
         });
 
         function joinQueue() {
             const name = document.getElementById('p-name').value.trim();
-            if (!name) return alert("Enter name");
-            unlockVoice();
+            if (!name) { alert("Please enter your name"); return; }
+            
+            unlockVoice(); // Start audio on click
+
             db.transaction((data) => {
                 data = data || { current: 0, last: 0, patients: {} };
                 data.last = (data.last || 0) + 1;
@@ -92,26 +102,50 @@
                 data.patients[data.last] = { name: name };
                 return data;
             }, (err, comm, snap) => {
-                if (comm) { myToken = snap.val().last; localStorage.setItem('fs_tk', myToken); localStorage.setItem('fs_nm', name); updateView(); }
+                if (comm) { 
+                    myToken = snap.val().last; 
+                    localStorage.setItem('fs_tk', myToken); 
+                    localStorage.setItem('fs_nm', name); 
+                    myName = name;
+                    updateView(); 
+                }
             });
         }
 
         function handleAlerts(now) {
             const diff = myToken - now;
             const m = document.getElementById('status-msg');
+            
             if (diff === 3 && lastSpeak !== 3) {
                 m.innerText = "3 PATIENTS LEFT";
                 speak(`Excuse me ${myName}, there are only three patients left for your turn.`);
-                lastSpeak = 3;
+                lastAlerted = 3;
             } else if (diff === 0 && lastSpeak !== 0) {
                 m.innerText = "DR. IS CALLING YOU";
                 speak(`Doctor Pradeep is calling you now, ${myName}. Please go to the cabin courteously.`);
                 lastSpeak = 0;
+            } else if (diff < 0) {
+                m.innerText = "TURN PASSED";
+            } else {
+                m.innerText = "";
             }
         }
 
-        function unlockVoice() { audioActive = true; window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance("Voice Active")); document.getElementById('voice-lock').style.display = 'none'; }
-        function speak(t) { if (!audioActive) return; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.rate = 0.85; window.speechSynthesis.speak(u); }
+        function unlockVoice() { 
+            audioActive = true; 
+            window.speechSynthesis.cancel(); 
+            const u = new SpeechSynthesisUtterance("Voice Active");
+            window.speechSynthesis.speak(u); 
+            document.getElementById('voice-lock').style.display = 'none'; 
+        }
+
+        function speak(t) { 
+            if (!audioActive) return; 
+            window.speechSynthesis.cancel(); 
+            const u = new SpeechSynthesisUtterance(t); 
+            u.rate = 0.85; 
+            window.speechSynthesis.speak(u); 
+        }
     </script>
 </body>
 </html>
