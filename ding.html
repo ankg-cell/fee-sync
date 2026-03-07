@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FeeSync Pro | Dr. Pradeep's Clinic</title>
+    <title>FeeSync Pro | Dr. Pradeep</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --primary: #6366f1; --red: #ff4d4d; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #22c55e; }
-        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 40px; }
+        :root { --primary: #6366f1; --red: #ff4d4d; --dark: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .header { width: 100%; padding: 30px 0; text-align: center; background: linear-gradient(180deg, #1e1b4b 0%, var(--dark) 100%); }
-        .logo { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; }
+        .logo { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; color: #fff; }
         .logo span { color: var(--red); }
         .clinic-tag { font-size: 0.8rem; letter-spacing: 3px; color: var(--primary); font-weight: 800; text-transform: uppercase; }
         .main-card { background: var(--card); width: 90%; max-width: 420px; border-radius: 40px; padding: 40px 24px; text-align: center; margin: 20px auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
@@ -21,7 +21,8 @@
         .btn-join { background: #fff; color: var(--dark); }
         .hidden { display: none !important; }
         #status-msg { color: var(--primary); font-weight: 800; margin-top: 20px; font-size: 1.1rem; }
-        .test-voice-btn { background: transparent; color: #64748b; font-size: 0.7rem; border: 1px solid #334155; padding: 5px 10px; border-radius: 10px; margin-top: 10px; cursor: pointer; }
+        .voice-unlock { background: #22c55e; color: white; font-size: 0.8rem; padding: 15px; border-radius: 15px; margin-top: 10px; cursor: pointer; border: none; font-weight: 700; width: 100%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -39,18 +40,18 @@
 
     <div id="patient-join-view" class="main-card hidden">
         <h2 style="margin:0">Live Check-in</h2>
-        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 30px;">Tap below to join the queue.</p>
-        <button class="btn btn-join" onclick="joinQueue()">GET MY TOKEN</button>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 30px;">Tap to join and enable voice alerts.</p>
+        <button class="btn btn-join" onclick="joinQueue()">GET MY TOKEN & START AUDIO</button>
     </div>
 
     <div id="patient-status-view" class="main-card hidden">
+        <button id="unlock-audio" class="voice-unlock" onclick="primeAudio()">🔊 ENABLE VOICE ALERTS</button>
         <div class="token-circle"><div class="token-val" id="pat-current">0</div><div style="font-size: 0.6rem; color: var(--primary);">NOW CALLING</div></div>
         <div style="background: rgba(99, 102, 241, 0.1); padding: 25px; border-radius: 30px; border: 1px solid var(--primary);">
             <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 700;">YOUR TOKEN</span>
             <div style="font-size: 3.5rem; font-weight: 900; color: var(--primary);">#<span id="my-num">0</span></div>
         </div>
-        <div id="status-msg">Waiting for updates...</div>
-        <button class="test-voice-btn" onclick="primeAndTest()">🔊 Tap to test voice alert</button>
+        <div id="status-msg">Connecting to live queue...</div>
     </div>
 
     <script>
@@ -63,7 +64,11 @@
   messagingSenderId: "572245525299",
   appId: "1:572245525299:web:facc4e8e7ba5dd0a913446"
             
-           };
+            
+            
+            
+            
+         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('live_queue/clinic_test');
 
@@ -71,6 +76,7 @@
         const role = params.get('role');
         let myToken = parseInt(localStorage.getItem('feesync_token')) || 0;
         let lastAlerted = -1;
+        let audioEnabled = false;
 
         function updateView() {
             document.getElementById('doctor-view').classList.toggle('hidden', role !== 'doctor');
@@ -80,18 +86,30 @@
         }
         updateView();
 
-        // Voice Engine
-        function speak(t) {
-            window.speechSynthesis.cancel(); // Stop any overlapping speech
-            const u = new SpeechSynthesisUtterance(t);
-            u.rate = 0.9;
-            u.pitch = 1;
-            u.volume = 1;
-            window.speechSynthesis.speak(u);
+        // THE ULTIMATE VOICE HANDSHAKE
+        function primeAudio() {
+            audioEnabled = true;
+            // Create a tiny silent beep to wake up the system
+            const silent = new SpeechSynthesisUtterance("Audio active");
+            silent.volume = 0.1;
+            window.speechSynthesis.speak(silent);
+            
+            document.getElementById('unlock-audio').innerText = "✅ VOICE ALERTS READY";
+            document.getElementById('unlock-audio').style.background = "#334155";
+            document.getElementById('unlock-audio').classList.remove('voice-unlock');
         }
 
-        function primeAndTest() {
-            speak("Voice alerts are active. You will be notified courteously.");
+        function speak(text) {
+            if (!audioEnabled) {
+                console.log("Audio not primed yet");
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.85;
+            utterance.pitch = 1;
+            window.speechSynthesis.speak(utterance);
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         }
 
         db.on('value', (snap) => {
@@ -113,8 +131,7 @@
         });
 
         function joinQueue() {
-            // Prime voice immediately on first interaction
-            speak("Joining queue.");
+            primeAudio(); // Attempt to prime on first click
             db.transaction((data) => {
                 data = data || { current: 0, last_issued: 0 };
                 const next = Math.max(data.current, data.last_issued) + 1;
@@ -141,8 +158,10 @@
                 m.innerText = "DR. IS CALLING YOU";
                 speak("The doctor is calling you now. Please get up and go to meet the doctor. Have a nice consultation.");
                 lastAlerted = 0;
-            } else if (diff > 3) {
+            } else if (diff > 0) {
                 m.innerText = diff + " patients ahead of you";
+            } else if (diff < 0) {
+                m.innerText = "YOUR TURN HAS PASSED";
             }
         }
 
